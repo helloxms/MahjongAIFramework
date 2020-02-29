@@ -15,7 +15,7 @@ class BaseMJPlayer(object):
     def __init__(self):
         pass
 
-    def declare_action(self, valid_actions, tiles, round_state):
+    def declare_action(self, valid_actions, hand_tiles, round_state):
         err_msg = self.__build_err_msg("declare_action")
         raise NotImplementedError(err_msg)
 

@@ -89,7 +89,7 @@ class MessageSummarizer(object):
         return base % (winners, message["round_count"], stack)
 
     def summarize_game_result(self, message):
-        print("summarize game result: {}".format(message))
+        print("summarize game result: Game finished. message:{}".format(message))
         base = 'Game finished. (stack = %s)'
         stack = { player["name"] for player in message["game_information"]["seats"] }
         return base % stack
