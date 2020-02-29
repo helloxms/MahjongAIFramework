@@ -1,4 +1,4 @@
-from pymjengine.engine.card import Card
+from pymjengine.engine.tile import Tile
 from pymjengine.engine.seats import Seats
 from pymjengine.engine.wall import Wall
 
