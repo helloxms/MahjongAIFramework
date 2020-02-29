@@ -29,11 +29,11 @@ class BaseMJPlayer(object):
         raise NotImplementedError(err_msg)
 
 
-    def receive_game_update_message(self, round_count, action_info,  round_state):
+    def receive_game_update_message(self, action_info,  round_state):
         err_msg = self.__build_err_msg("receive_game_update_message")
         raise NotImplementedError(err_msg)
 
-    def receive_round_result_message(self, round_count,  winners, action_info, round_state):
+    def receive_round_result_message(self, winners, action_info, round_state):
         err_msg = self.__build_err_msg("receive_round_result_message")
         raise NotImplementedError(err_msg)
 
@@ -42,11 +42,13 @@ class BaseMJPlayer(object):
 
     def respond_to_ask(self, message):
         """Called from Player when ask message received from RoundManager"""
-        valid_actions, titles, round_state = self.__parse_ask_message(message)
-        return self.declare_action(valid_actions, titles, round_state)
+        valid_actions, hand_tiles, round_state = self.__parse_ask_message(message)
+        return self.declare_action(valid_actions, hand_tiles, round_state)
 
     def receive_notification(self, message):
         """Called from Player when notification received from RoundManager"""
+        print("receive_notification")
+        print()
         msg_type = message["message_type"]
         if msg_type == "game_start_message":
             info = self.__parse_game_start_message(message)
@@ -57,22 +59,23 @@ class BaseMJPlayer(object):
             self.receive_round_start_message(round_count, action_info, seats)
 
         elif msg_type == "game_update_message":
-            round_count, action_info, round_state = self.__parse_game_update_message(message)
-            self.receive_game_update_message(round_count, action_info, round_state)
+            action_info, round_state = self.__parse_game_update_message(message)
+            self.receive_game_update_message(action_info, round_state)
 
         elif msg_type == "round_result_message":
-            round_count, winners, action_info, round_state = self.__parse_round_result_message(message)
-            self.receive_round_result_message(round_count, winners, action_info, round_state)
+            winners, action_info, round_state = self.__parse_round_result_message(message)
+            self.receive_round_result_message(winners, action_info, round_state)
 
 
     def __build_err_msg(self, msg):
         return "Your client does not implement [ {0} ] method".format(msg)
 
     def __parse_ask_message(self, message):
-        titls = message["titls"]
-        valid_actions = message["valid_actions"]
+        print("parse ask message {}".format(message))
+        hand_tiles = message["hand_tiles"]
         round_state = message["round_state"]
-        return valid_actions, titls, round_state
+        valid_actions = message["valid_actions"]
+        return valid_actions, hand_tiles, round_state
 
     def __parse_game_start_message(self, message):
         game_info = message["game_information"]
@@ -86,15 +89,13 @@ class BaseMJPlayer(object):
 
 
     def __parse_game_update_message(self, message):
-        round_count = message["round_count"]
         action_info = message["action_info"]
         round_state = message["round_state"]
-        return round_count, action_info, round_state
+        return  action_info, round_state
 
     def __parse_round_result_message(self, message):
-        round_count = message["round_count"]
         winners = message["winners"]
         action_info = message["action_info"]
         round_state = message["round_state"]
-        return round_count, winners, action_info, round_state
+        return  winners, action_info, round_state
 

@@ -91,3 +91,6 @@ class Tile:
     def from_id(cls, tid):
         iType = int(tid/4)+1
         return cls(iType)
+    
+    def to_id(self):
+        return self.iType

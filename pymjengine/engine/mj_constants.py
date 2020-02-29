@@ -1,11 +1,16 @@
 class MJConstants:
 
     class Action:
-        TAKE  = 0
-        CHOW  = 1
-        PONG = 2
-        KONG = 3
-        PLAY = 4
-        TIN = 5
-        HU = 6
+        NONE  = 0
+        TAKE  = 1
+        CHOW  = 2
+        PONG = 3
+        KONG = 4
+        PLAY = 5
+        TIN = 6
+        HU = 7
+        
+    class round_act_state:
+        START = 0
+        FINISHED = 1
 

@@ -1,6 +1,6 @@
 from pymjengine.engine.pay_info import PayInfo
-from pymjengine.engine.card import Card
-from pymjengine.engine.poker_constants import PokerConstants as Const
+from pymjengine.engine.tile import Tile
+from pymjengine.engine.mj_constants import MJConstants
 
 
 
@@ -19,19 +19,26 @@ class Player:
     def __init__(self, uuid, name="No Name"):
         self.name = name
         self.uuid = uuid
+        self.ask_act = MJConstants.Action.NONE
         self.hand_tiles = []
         self.action_histories = []
         self.pay_info = PayInfo()
 
-    def add_hand_tlies(self, tiles):
-        self.hand_tiles = tiles
+    def add_hand_tiles(self, tiles):
+        self.hand_tiles += tiles
 
-    def clear_hand_tlies(self):
+    def clear_hand_tiles(self):
         self.hand_tiles = []
 
     def is_active(self):
         return self.pay_info.status != PayInfo.PAY_TILL_END
-
+    
+    def set_ask_act(self, act):
+        self.ask_act = act
+        
+    def get_ask_act(self):
+        print("get_ask_act:{}".format(self.ask_act))
+        return self.ask_act
 
     def add_action_history(self, kind ):
         history = None
@@ -51,13 +58,13 @@ class Player:
         return [
             self.name, self.uuid, self.hand_tiles, tile_ids,\
             self.action_histories[::], self.pay_info.serialize()
-    ]
+        ]
 
     @classmethod
     def deserialize(self, serial):
         tile_ids = [Tile.from_id(tid) for tid in serial[3]]
-        player = self(serial[1], serial[2], serial[0])
-        if len(tile_ids)!=0: player.add_hand_tlies(tile_ids)
+        player = self(serial[1], serial[0])
+        if len(tile_ids)!=0: player.add_hand_tiles(tile_ids)
         player.action_histories = serial[4]
         player.pay_info = PayInfo.deserialize(serial[5])
         return player
@@ -85,4 +92,3 @@ class Player:
     def __add_uuid_on_history(self, history):
         history["uuid"] = self.uuid
         return history
-

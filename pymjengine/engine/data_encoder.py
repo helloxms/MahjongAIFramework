@@ -1,7 +1,7 @@
 from functools import reduce
 
 from pymjengine.engine.pay_info import PayInfo
-from pymjengine.engine.poker_constants import PokerConstants as Const
+from pymjengine.engine.mj_constants import MJConstants
 
 
 
@@ -42,7 +42,7 @@ class DataEncoder:
     def encode_valid_actions(self):
         return {
             "valid_actions": [
-              { "action": "take", "amount": 0 },
+              { "action1": "chow", "action2": "pong","action3":"kong" },
             ]
         }
 
@@ -87,3 +87,4 @@ class DataEncoder:
         for _ in range(max_len-len(lst)):
             lst.append(None)
         return lst
+        

@@ -17,7 +17,6 @@ class PayInfo:
     def update_to_unpayed(self):
         self.status = self.UNPAYED
 
-    # serialize format : [amount, status]
     def serialize(self):
         return [self.amount, self.status]
 

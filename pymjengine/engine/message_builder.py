@@ -2,6 +2,10 @@ from pymjengine.engine.data_encoder import DataEncoder
 
 
 
+
+
+
+
 class MessageBuilder:
 
     GAME_START_MESSAGE = "game_start_message"
@@ -20,13 +24,14 @@ class MessageBuilder:
         return self.__build_notification_message(message)
 
     @classmethod
-    def build_round_start_message(self, round_count, player_pos, seats):
+    def build_round_start_message(self, round_count, player_pos, seats,action):
         player = seats.players[player_pos]
         hand_tiles = DataEncoder.encode_player(player, hand_tiles=True)["hand_tiles"]
         message = {
             "message_type": self.ROUND_START_MESSAGE,
             "round_count": round_count,
-            "hand_tiles": hand_tiles
+            "hand_tiles": hand_tiles,
+            "action_info": DataEncoder.encode_action(player, action),
         }
         message.update(DataEncoder.encode_seats(seats))
         return self.__build_notification_message(message)
@@ -38,7 +43,7 @@ class MessageBuilder:
         player = state["table"].seats.players[player_pos]
         message = {
             "message_type": self.GAME_UPDATE_MESSAGE,
-            "action": DataEncoder.encode_action(player, action),
+            "action_info": DataEncoder.encode_action(player, action),
             "round_state": DataEncoder.encode_round_state(state),
             "action_histories": DataEncoder.encode_action_histories(state["table"])
         }
@@ -63,6 +68,19 @@ class MessageBuilder:
         }
         return self.__build_notification_message(message)
 
+    @classmethod
+    def build_ask_message(self, player_pos, state):
+        players = state["table"].seats.players
+        player = players[player_pos]
+        hand_tiles = DataEncoder.encode_player(player, hand_tiles=True)["hand_tiles"]
+        message = {
+            "message_type" : self.ASK_MESSAGE,
+            "hand_tiles": hand_tiles,
+            "round_state": DataEncoder.encode_round_state(state),
+            "valid_actions":DataEncoder.encode_valid_actions(),
+            "action_histories": DataEncoder.encode_action_histories(state["table"])
+        }
+        return self.__build_ask_message(message)
 
     @classmethod
     def __build_ask_message(self, message):

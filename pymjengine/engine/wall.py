@@ -1,6 +1,8 @@
 from functools import reduce
 import random
-from pymjengine.engine.card import Tile
+from pymjengine.engine.tile import Tile
+
+
 
 
 class Wall:
@@ -26,7 +28,7 @@ class Wall:
         if not self.cheat:
             random.shuffle(self.wall)
 
-  # serialize format : [cheat_flg, cheat_tile_ids, wall_tile_ids]
+# serialize format : [cheat_flg, cheat_tile_ids, wall_tile_ids]
     def serialize(self):
         return [self.cheat, self.cheat_tile_ids, [tile.to_id() for tile in self.wall]]
 
