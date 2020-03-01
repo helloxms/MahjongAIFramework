@@ -112,7 +112,7 @@ class GameManager:
     def __is_game_finished(self, table):
         bFinish = False
         for player in table.seats.players:
-            print("player is active: {}".format(player.is_active()))
+            print("player is hu: {}".format(player.is_hu))
             if player.is_hu :
                 bFinish = True
         return bFinish

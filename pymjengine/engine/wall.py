@@ -8,7 +8,7 @@ from pymjengine.engine.tile import Tile
 class Wall:
 
     def __init__(self, wall_ids=None, cheat=False, cheat_tile_ids=[]):
-        print("init wall, wall ids:{}".format(wall_ids))
+        #print("init wall, wall ids:{}".format(wall_ids))
         self.cheat = cheat
         self.cheat_tile_ids = cheat_tile_ids
         self.wall = [Tile.from_id(tid) for tid in wall_ids] if wall_ids else self.__setup()

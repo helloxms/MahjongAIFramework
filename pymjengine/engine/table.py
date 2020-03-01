@@ -12,7 +12,7 @@ class Table:
         self._river_tiles = []
         self.banker = 0
         self.cur_player = 0
-        print("table wall init:{}".format(self.wall.serialize()))
+        #print("table wall init:{}".format(self.wall.serialize()))
 
     def get_river_tiles(self):
         return self._river_tiles[::]
@@ -59,7 +59,7 @@ class Table:
 
     @classmethod
     def deserialize(self, serial):
-        print("*****func* table.deserialize ")
+        print("******func* table.deserialize ")
         wall = Wall.deserialize(serial[1])
         river_tiles = [Tile.from_id(tid) for tid in serial[2]]
         table = self(cheat_wall=wall)
