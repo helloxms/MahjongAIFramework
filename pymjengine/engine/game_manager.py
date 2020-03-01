@@ -38,6 +38,7 @@ class GameManager:
 
     def play_round(self, round_count):
         state, msgs = RoundManager.start_new_round(round_count, self.table)
+        print("play_round msgs:{}".format(msgs))
         while True:
             self.__message_check(msgs)
             if state["round_act_state"] != MJConstants.round_act_state.FINISHED :  # continue the round
@@ -69,6 +70,7 @@ class GameManager:
         self.message_summarizer.summarize(start_msg)
 
     def __is_game_finished(self, table):
+        bFinish = False
         for player in table.seats.players:
             print("player is active: {}".format(player.is_active()))
         return len([player for player in  table.seats.players if player.is_active()]) == 1

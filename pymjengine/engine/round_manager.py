@@ -60,7 +60,7 @@ class RoundManager:
     @classmethod
     def __deal_handtiles(self, wall, players):
         for player in players:
-            player.add_hand_tiles(wall.draw_tiles(1))
+            player.add_hand_tiles(wall.draw_tiles(14))
 
         
         
@@ -141,7 +141,9 @@ class RoundManager:
     def __forward_act(self, state):
         table = state["table"]
         next_player_pos = state["next_player"]
+        print("forward_act, next player pos:{}".format(next_player_pos)) 
         next_player = table.seats.players[next_player_pos]
+        print("forward_act, next player uuid:{}".format(next_player.uuid))
         ask_message = [(next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))]
         return state, ask_message
 

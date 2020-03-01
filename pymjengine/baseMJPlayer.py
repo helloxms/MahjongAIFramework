@@ -48,7 +48,6 @@ class BaseMJPlayer(object):
     def receive_notification(self, message):
         """Called from Player when notification received from RoundManager"""
         print("receive_notification")
-        print()
         msg_type = message["message_type"]
         if msg_type == "game_start_message":
             info = self.__parse_game_start_message(message)

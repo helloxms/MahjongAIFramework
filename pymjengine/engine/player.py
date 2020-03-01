@@ -20,6 +20,7 @@ class Player:
         self.name = name
         self.uuid = uuid
         self.ask_act = MJConstants.Action.NONE
+        self.is_hu = False
         self.hand_tiles = []
         self.action_histories = []
         self.pay_info = PayInfo()
@@ -29,6 +30,12 @@ class Player:
 
     def clear_hand_tiles(self):
         self.hand_tiles = []
+
+    def is_hu(self):
+        return self.is_hu
+
+    def set_hu(self, bHu):
+        self.is_hu = bHu
 
     def is_active(self):
         return self.pay_info.status != PayInfo.PAY_TILL_END

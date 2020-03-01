@@ -10,22 +10,26 @@ class SimpleMJPlayer(BaseMJPlayer):
     def declare_action(self, valid_actions, hand_tiles, round_state):
         # valid_actions 
         call_action_info = valid_actions
-        
+        print(self.uuid)
         print("==========>  AI declare actions here:{} hand_tiles:{}".format(call_action_info, hand_tiles))
         return call_action_info   # action returned here is sent to the mahjong engine
 
     def receive_game_start_message(self, game_info):
-        print("==========>  AI receive_game_start_message，game_info{}".format(game_info))
+        print(self.uuid)
+        print("==========>  AI receive_game_start_message，game_info:{}".format(game_info))
         return
 
     def receive_round_start_message(self, round_count, action_info, seats):
+        print(self.uuid)
         print("==========>  AI receive_round_start_message, round_count:{}, action_info:{},seats:{}".format(round_count, action_info, seats))
         return
 
     def receive_game_update_message(self, action_info, round_state):
+        print(self.uuid)
         print("==========>  AI receive_game_update_message, action_info:{}, round_state{}".format(action_info, round_state))
         return
 
     def receive_round_result_message(self, winners, action_info, round_state):
+        print(self.uuid)
         print("==========>  AI receive_round_result_message, winners:{}, action_info:{}, round_state:{}".format(winners, action_info, round_state))
         return
