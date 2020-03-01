@@ -78,6 +78,7 @@ class MessageBuilder:
             "hand_tiles": hand_tiles,
             "round_state": DataEncoder.encode_round_state(state),
             "valid_actions":DataEncoder.encode_valid_actions(),
+            "cur_action":state["cur_act"],
             "action_histories": DataEncoder.encode_action_histories(state["table"])
         }
         return self.__build_ask_message(message)

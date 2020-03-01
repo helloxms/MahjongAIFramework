@@ -13,9 +13,9 @@ class BaseMJPlayer(object):
     - receive_round_result_message
     """
     def __init__(self):
-        pass
+        self.debug_info_level= 0
 
-    def declare_action(self, valid_actions, hand_tiles, round_state):
+    def declare_action(self, valid_actions, hand_tiles, round_state, cur_action):
         err_msg = self.__build_err_msg("declare_action")
         raise NotImplementedError(err_msg)
 
@@ -42,12 +42,11 @@ class BaseMJPlayer(object):
 
     def respond_to_ask(self, message):
         """Called from Player when ask message received from RoundManager"""
-        valid_actions, hand_tiles, round_state = self.__parse_ask_message(message)
-        return self.declare_action(valid_actions, hand_tiles, round_state)
+        valid_actions, hand_tiles, round_state, cur_action = self.__parse_ask_message(message)
+        return self.declare_action(valid_actions, hand_tiles, round_state, cur_action)
 
     def receive_notification(self, message):
         """Called from Player when notification received from RoundManager"""
-        print("receive_notification")
         msg_type = message["message_type"]
         if msg_type == "game_start_message":
             info = self.__parse_game_start_message(message)
@@ -70,11 +69,13 @@ class BaseMJPlayer(object):
         return "Your client does not implement [ {0} ] method".format(msg)
 
     def __parse_ask_message(self, message):
-        print("parse ask message {}".format(message))
+        if self.debug_info_level>0 :
+            print("parse ask message {}".format(message))
         hand_tiles = message["hand_tiles"]
         round_state = message["round_state"]
         valid_actions = message["valid_actions"]
-        return valid_actions, hand_tiles, round_state
+        cur_action = message["cur_action"]
+        return valid_actions, hand_tiles, round_state, cur_action
 
     def __parse_game_start_message(self, message):
         game_info = message["game_information"]

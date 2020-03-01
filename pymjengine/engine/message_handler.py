@@ -33,14 +33,14 @@ class MessageHandler:
         
 class MessageSummarizer(object):
 
-    def __init__(self, verbose):
-        self.verbose = verbose
+    def __init__(self, debug_info_level):
+        self.debug_info_level = debug_info_level
 
     def print_message(self, message):
         print(message)
 
     def summarize_messages(self, raw_messages):
-        if self.verbose == 0: return
+        if self.debug_info_level == 0: return
 
         summaries = [self.summarize(raw_message[1]) for raw_message in raw_messages]
         summaries = [summary for summary in summaries if summary is not None]
@@ -48,7 +48,7 @@ class MessageSummarizer(object):
         for summary in summaries: self.print_message(summary)
 
     def summarize(self, message):
-        if self.verbose == 0: return None
+        if self.debug_info_level == 0: return None
 
         content = message["message"]
         message_type = content["message_type"]

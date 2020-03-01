@@ -1,4 +1,4 @@
-from pymjengine.engine.pay_info import PayInfo
+
 from pymjengine.engine.tile import Tile
 from pymjengine.engine.mj_constants import MJConstants
 
@@ -21,9 +21,13 @@ class Player:
         self.uuid = uuid
         self.ask_act = MJConstants.Action.NONE
         self.is_hu = False
+        self.active_info = False
         self.hand_tiles = []
         self.action_histories = []
-        self.pay_info = PayInfo()
+
+
+    def add_hand_tile(self, tile):
+        self.hand_tiles += [tile]
 
     def add_hand_tiles(self, tiles):
         self.hand_tiles += tiles
@@ -38,13 +42,16 @@ class Player:
         self.is_hu = bHu
 
     def is_active(self):
-        return self.pay_info.status != PayInfo.PAY_TILL_END
+        return self.active_info
+
+    def set_active(self, bActive):
+        self.active_info = bActive
     
     def set_ask_act(self, act):
         self.ask_act = act
         
     def get_ask_act(self):
-        print("get_ask_act:{}".format(self.ask_act))
+        #print("get_ask_act:{}".format(self.ask_act))
         return self.ask_act
 
     def add_action_history(self, kind ):
@@ -56,15 +63,18 @@ class Player:
     def clear_action_histories(self):
         self.action_histories = []
 
-    def clear_pay_info(self):
-        self.pay_info = PayInfo()
+    def clear_active_info(self):
+        self.active_info = False
 
+    def get_handtile_ids(self):
+        tile_ids = [tile.to_id() for tile in self.hand_tiles]
+        return [tile_ids]
 
     def serialize(self):
         tile_ids = [tile.to_id() for tile in self.hand_tiles]
         return [
             self.name, self.uuid, self.hand_tiles, tile_ids,\
-            self.action_histories[::], self.pay_info.serialize()
+            self.action_histories[::],self.active_info
         ]
 
     @classmethod
@@ -73,7 +83,7 @@ class Player:
         player = self(serial[1], serial[0])
         if len(tile_ids)!=0: player.add_hand_tiles(tile_ids)
         player.action_histories = serial[4]
-        player.pay_info = PayInfo.deserialize(serial[5])
+        player.active_info = serial[5]
         return player
 
 

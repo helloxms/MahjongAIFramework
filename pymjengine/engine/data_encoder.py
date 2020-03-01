@@ -1,20 +1,19 @@
 from functools import reduce
 
-from pymjengine.engine.pay_info import PayInfo
 from pymjengine.engine.mj_constants import MJConstants
 
 
 
 class DataEncoder:
 
-    PAY_INFO_PAY_TILL_END_STR = "participating"
+    ACTIVE_STR = "active"
 
     @classmethod
     def encode_player(self, player, hand_tiles=False):
         hash_ = {
             "name": player.name,
             "uuid": player.uuid,
-            "state": self.__payinfo_to_str(player.pay_info.status)
+            "state": self.__active_str()
         }
         if hand_tiles:
             tile_hash = {"hand_tiles": [str(tile) for tile in player.hand_tiles]}
@@ -32,7 +31,8 @@ class DataEncoder:
         hsh = {
             "player_num" : len(seats.players),
             "rule": {
-              "max_round": config["max_round"]
+              "max_round": config["max_round"],
+              "banker": config["banker"]
             }
         }
         hsh.update(self.encode_seats(seats))
@@ -42,7 +42,14 @@ class DataEncoder:
     def encode_valid_actions(self):
         return {
             "valid_actions": [
-              { "action1": "chow", "action2": "pong","action3":"kong" },
+              { "action1": "chow", \
+              "action2": "pong",\
+              "action3":"kong",\
+              "action4":"take",\
+              "action5":"play",\
+              "action6":"tin",\
+              "action7":"hu"
+               },
             ]
         }
 
@@ -74,8 +81,8 @@ class DataEncoder:
 
 
     @classmethod
-    def __payinfo_to_str(self, status):
-        return self.PAY_INFO_PAY_TILL_END_STR
+    def __active_str(self):
+        return self.ACTIVE_STR
 
     @classmethod
     def __encode_players(self, players):

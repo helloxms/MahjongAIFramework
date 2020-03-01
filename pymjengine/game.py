@@ -2,15 +2,16 @@
 
 
 from pymjengine.engine.game_manager import GameManager
-from pymjengine.players import BaseMJPlayer
+from pymjengine.baseMJPlayer import BaseMJPlayer
 
 def setup_config(max_round):
     return Config(max_round)
 
-def start_mahjong(config, verbose=2):
+#debug_info_level
+def start_mahjong(config, debug_info_level=0):
     config.validation()
     gm = GameManager()
-    gm.set_verbose(verbose)
+    gm.set_debug_info_level(debug_info_level)
     for info in config.players_info:
         gm.register_player(info["name"], info["algorithm"])
     result_message = gm.start_game(config.max_round)

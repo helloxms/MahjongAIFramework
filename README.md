@@ -33,7 +33,7 @@ from pymjengine.players import BaseMJPlayer
 class MJPlayer(BaseMJPlayer):  # Do not forget to make parent class as "BaseMJPlayer"
 
     #  we define the logic to make an action through this method. (so this method would be the core of your AI)
-    def declare_action(self, valid_actions, hand_tile, round_state):
+    def declare_action(self, valid_actions, hand_tile, round_state, cur_action):
         # valid_actions format => [hand_action_info, take_action_info, play_action_info]
         call_action_info = valid_actions[1]
         action, amount = call_action_info["action"], call_action_info["amount"]

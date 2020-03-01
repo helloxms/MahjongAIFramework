@@ -2,7 +2,6 @@ from functools import reduce
 
 from pymjengine.engine.table import Table
 from pymjengine.engine.player import Player
-from pymjengine.engine.pay_info import PayInfo
 from pymjengine.engine.mj_constants import MJConstants
 from pymjengine.engine.message_builder import MessageBuilder
 
@@ -10,26 +9,20 @@ class RoundManager:
 
     @classmethod
     def start_new_round(self, round_count, table):
-        print("start new round")
+        print("*********************************************")
+        print("******func* RoundManager.start_new_round")
+        #step3. start a round
         _state = self.__gen_initial_state(round_count, table)
-        
         state = self.__deep_copy_state(_state)
         table = state["table"]
-        table.cur_player_pos = 1
-
-        table.wall.shuffle()
-        self.__deal_handtiles(table.wall, table.seats.players)
         start_msg = self.__round_start_message(round_count, table)
-        state, takeround_msgs = self.__start_act_round(state)
-        return state, start_msg + takeround_msgs
+        state, round_act_msg = self.__start_round_act(state)
+        return state, start_msg + round_act_msg
 
     @classmethod
-    def apply_action(self, original_state, action):
-        print("apply_action: origin state:{}".format(original_state))
-        print("apply_action: action:{}".format(action))
+    def apply_action(self, original_state, player_pos, action):
         state = self.__deep_copy_state(original_state)
-        print("apply_action: cur state:{}".format(state))
-        state = self.__update_state_by_action(state, action)
+        state = self.__update_state_by_action(state, player_pos, action)
         
         update_msg = self.__update_message(state, action)
         state["next_player"] = state["table"].next_ask_act_player_pos(state["next_player"])
@@ -45,16 +38,22 @@ class RoundManager:
           state["next_player"], action,state))
         
     @classmethod
-    def __update_state_by_action(self, state, action):
+    def __update_state_by_action(self, state, player_pos, action):
         table = state["table"]
-        return self.__accept_action(state, action)
+        return self.__accept_action(state, player_pos, action)
 
     @classmethod
-    def __accept_action(self, state, action):
-        print("accept action:{}".format(action))
-        player = state["table"].seats.players[state["next_player"]]
+    def __accept_action(self, state, player_pos, action):
+        print("******func* RoundManager.__accept_action action:{}".format(action))
+        player = state["table"].seats.players[player_pos]
+        table = state["table"]
+        if action == MJConstants.Action.TAKE :
+            tile = table.wall.draw_tile()
+            player.add_hand_tile(tile)
+            player.add_action_history(action)
+            print(table.wall.size())
+            print("player handtiles:{}".format(player.get_handtile_ids()))
 
-        player.add_action_history(MJConstants.Action.TAKE)
         return state
 
     @classmethod
@@ -65,17 +64,18 @@ class RoundManager:
         
         
     @classmethod
-    def __start_act_round(self, state):
-        print("__start_act_round")
-         
-        next_player_pos = state["table"].next_ask_act_player_pos(state["table"].cur_player_pos)
-        if(next_player_pos > 0):
-            state["table"].cur_player_pos = next_player_pos
-            state["next_player"] = next_player_pos
-            state["cur_act"] = state["table"].get_player_act(next_player_pos)
+    def __start_round_act(self, state):
+        print("******func* RoundManager.__start_round_act")
+        
+        first_player = state["table"].banker
+        if(first_player >= 0):
+            state["table"].cur_player = first_player
+            state["cur_player"] = first_player
+            state["next_player"] = state["table"].get_next_player(first_player)
+            state["cur_act"] = MJConstants.Action.TAKE
         else:
             state["next_player"] = -1           
-            
+
         round_act = state["cur_act"] 
         if round_act == MJConstants.Action.TAKE:
             return self.__act_take(state)
@@ -92,31 +92,32 @@ class RoundManager:
 
     @classmethod
     def __act_take(self, state):
-        print("act take")
+        print("******func* RoundManager.__act_take")
         return self.__forward_act(state)
             
     @classmethod
     def __act_chow(self, state):
-        print("act chow")
+        print("******func* RoundManager.act chow")
         return self.__forward_act(state)
 
     @classmethod
     def __act_pong(self, state):
-        print("act pong")
+        print("******func* RoundManager.act pong")
         return self.__forward_act(state)
 
     @classmethod
     def __act_kong(self, state):
-        print("act kong")
+        print("******func* RoundManager.act kong")
         return self.__forward_act(state)
 
     @classmethod
     def __act_play(self, state):
-        print("act play")
+        print("******func* RoundManager.act play")
         return self.__forward_act(state)
 
     @classmethod
     def __showResult(self, state):
+        print("******func* RoundManager.__showResult")
         winners = 1
         hand_info = "handinfo123456789"
         prize_map = {1:100,2:200,3:300,4:400}
@@ -140,11 +141,11 @@ class RoundManager:
     @classmethod
     def __forward_act(self, state):
         table = state["table"]
-        next_player_pos = state["next_player"]
-        print("forward_act, next player pos:{}".format(next_player_pos)) 
-        next_player = table.seats.players[next_player_pos]
-        print("forward_act, next player uuid:{}".format(next_player.uuid))
-        ask_message = [(next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))]
+        cur_player_pos = state["cur_player"]
+        print("forward_act, wait player pos:{}".format(cur_player_pos)) 
+        cur_player = table.seats.players[cur_player_pos]
+        print("forward_act, wait player uuid:{}".format(cur_player.uuid))
+        ask_message = [(cur_player.uuid, MessageBuilder.build_ask_message(cur_player_pos, state))]
         return state, ask_message
 
     #be carefull,for this init will miss some param,if we don't add them

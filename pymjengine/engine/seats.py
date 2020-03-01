@@ -1,4 +1,3 @@
-from pymjengine.engine.pay_info import PayInfo
 from pymjengine.engine.player import Player
 
 class Seats:
