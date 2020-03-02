@@ -70,7 +70,7 @@ class BaseMJPlayer(object):
 
     def __parse_ask_message(self, message):
         if self.debug_info_level>0 :
-            print("parse ask message {}".format(message))
+            print("\n******func* baseMJPlayer.__parse_ask_message: {}".format(message))
         hand_tiles = message["hand_tiles"]
         round_state = message["round_state"]
         valid_actions = message["valid_actions"]

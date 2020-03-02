@@ -12,11 +12,12 @@ class RoundManager:
         print("*********************************************")
         print("******func* RoundManager.start_new_round")
         # step3. start a round
+        print("******func* RoundManager.start_new_round wall size={}".format(table.wall.size()))
         _state = self.__gen_initial_state(round_count, table)
         state = self.__deep_copy_state(_state)
         table = state["table"]
         start_msg = self.__round_start_message(round_count, table)
-        state, round_act_msg = self.__start_round_act(state)
+        state, round_act_msg = self.__start_take_act(state)
         return state, start_msg + round_act_msg
 
     @classmethod
@@ -25,10 +26,12 @@ class RoundManager:
         state = self.__deep_copy_state(original_state)
         state = self.__update_state_by_action(state, player_pos, action)
         # and inform to all player
-        # wait all player's call
         update_msg = self.__update_message(state, action)
+        # then we ask for player's call
         state["next_player"] = state["table"].get_next_player(player_pos)
-        state["valid_actions"] = ['chow', 'pong', 'kong']
+        state["valid_actions"] = []
+        if action == MJConstants.Action.TAKE:
+            state["valid_actions"] = ['chow', 'pong', 'kong']
         next_player_pos = state["next_player"]
         next_player = state["table"].seats.players[next_player_pos]
         ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
@@ -46,16 +49,16 @@ class RoundManager:
 
     @classmethod
     def __accept_action(cls, state, player_pos, action):
-        print("******func* RoundManager.__accept_action action:{}".format(action))
+        print("******func* RoundManager.__accept_action palyer_pos:{} action:{}".format(player_pos, action))
         player = state["table"].seats.players[player_pos]
         table = state["table"]
         if action == MJConstants.Action.TAKE:
             tile = table.wall.draw_tile()
             player.add_hand_tile(tile)
             player.add_action_history(action)
-            print("wall size: {}  ,{}".format(table.wall.size(), state["table"].wall.size()))
+            print("wall size: {}  ".format(table.wall.size()))
             print("player handtiles:{} size: {}".format(player.get_handtile_ids(), player.get_handtile_size()))
-
+            state["table"].wall = table.wall
         return state
 
     @classmethod
@@ -66,7 +69,7 @@ class RoundManager:
         
         
     @classmethod
-    def __start_round_act(self, state):
+    def __start_take_act(self, state):
         print("******func* RoundManager.__start_round_act")
         
         first_player = state["table"].banker
@@ -77,45 +80,9 @@ class RoundManager:
             state["cur_act"] = MJConstants.Action.TAKE
         else:
             state["next_player"] = -1           
+        return self.__ask_player_act(state)
 
-        round_act = state["cur_act"] 
-        if round_act == MJConstants.Action.TAKE:
-            return self.__act_take(state)
-        elif round_act == MJConstants.Action.CHOW:
-            return self.__act_chow(state)
-        elif round_act == MJConstants.Action.PONG:
-            return self.__act_pong(state)
-        elif round_act == MJConstants.Action.KONG:
-            return self.__act_kong(state)
-        elif round_act == MJConstants.Action.PLAY:
-            return self.__act_play(state)
-        else:
-            raise ValueError("round is already finished [round act = %d]" % round_act)
 
-    @classmethod
-    def __act_take(self, state):
-        print("******func* RoundManager.__act_take")
-        return self.__forward_act(state)
-            
-    @classmethod
-    def __act_chow(self, state):
-        print("******func* RoundManager.act chow")
-        return self.__forward_act(state)
-
-    @classmethod
-    def __act_pong(self, state):
-        print("******func* RoundManager.act pong")
-        return self.__forward_act(state)
-
-    @classmethod
-    def __act_kong(self, state):
-        print("******func* RoundManager.act kong")
-        return self.__forward_act(state)
-
-    @classmethod
-    def __act_play(self, state):
-        print("******func* RoundManager.act play")
-        return self.__forward_act(state)
 
     @classmethod
     def __showResult(self, state):
@@ -141,7 +108,7 @@ class RoundManager:
         return reduce(lambda acc, idx: acc + [gen_msg(idx)], range(len(players)), [])
 
     @classmethod
-    def __forward_act(self, state):
+    def __ask_player_act(self, state):
         table = state["table"]
         cur_player_pos = state["cur_player"]
         print("forward_act, wait player pos:{}".format(cur_player_pos)) 

@@ -58,14 +58,23 @@ class GameManager:
         self.debug_info_level = debug_info_level
 
     def start_game(self, max_round):
+        print("*************************************************************************************************")
+        print("******func* GameManager.start_game")
         table = self.table
         # step1. select the first player(banker)
+        print("******func* step1. select the first player(banker)")
         self.table.banker = self.__get_banker_pos()
         # step2. start from the first player,every one get 14 tiles
+        print("******func* step2. start from the first player,every one get 14 tiles")
         self.__draw_tiles()
+        print("******func* GameManager.__notify_game_start")
         self.__notify_game_start(max_round)
         # step3. start a round
+        print("******func* step3. start a round")
         for round_count in range(1, max_round+1):
+            print("*************************************************************************************************")
+            print("***************************************a new round***********************************************")
+            print("round count:{}".format(round_count))
             if self.__is_game_finished(table): 
                 print("game finished")
                 break
@@ -77,11 +86,12 @@ class GameManager:
         self.__message_check(msgs)
         state["round_act_state"] = MJConstants.round_act_state.START
         check_action_result = self.__publish_messages(msgs)
-        print("******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
+        print("\n******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
         if check_action_result > 0:
             check_action = check_action_result
             check_player_pos = state["cur_player"]
             state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
+            self.table = state["table"]
         if self.debug_info_level > 0:
             print("******func* GameManager.play_round apply_action state:{} msgs:{}".format(state, msgs))
 
@@ -89,17 +99,20 @@ class GameManager:
             self.__message_check(msgs)
             if state["round_act_state"] != MJConstants.round_act_state.FINISHED:  # continue the round
                 check_action_result = self.__publish_messages(msgs)
-                print("******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
+                print("\n******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
                 if check_action_result > 0:
                     state["cur_player"] = state["next_player"]
+                    state["next_player"] = state["table"].get_next_player(state["cur_player"])
                     check_action = check_action_result
                     check_player_pos = state["cur_player"]
+                    print("checked action is:{} cur_player:{} next_player:{}".format(check_action, state["cur_player"], state["next_player"]))
                     state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
-
+                    self.table = state["table"]
                 if state["next_player"] == self.table.banker:
                     state["round_act_state"] = MJConstants.round_act_state.FINISHED
-            else:  # finish the round after publish round result
-                print("******func* GameManager.play_round finish round")
+            else:  
+                print("******func* GameManager.play_round wall size:{}".format(self.table.wall.size()))
+                print("******func* GameManager.play_round finish a round\n\n")
                 break
             # self.__publish_messages(msgs)
         return state["table"]
@@ -124,7 +137,7 @@ class GameManager:
     def __is_game_finished(self, table):
         bFinish = False
         for player in table.seats.players:
-            print("player is hu: {}".format(player.is_hu))
+            print("check game end: {}".format(player.is_hu))
             if player.is_hu :
                 bFinish = True
         return bFinish
