@@ -1,7 +1,7 @@
 class MJConstants:
 
     class Action:
-        NONE  = 0
+        START  = 0
         TAKE  = 1
         CHOW  = 2
         PONG = 3

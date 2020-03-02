@@ -19,7 +19,7 @@ class Player:
     def __init__(self, uuid, name="No Name"):
         self.name = name
         self.uuid = uuid
-        self.ask_act = MJConstants.Action.NONE
+        self.ask_act = MJConstants.Action.START
         self.is_hu = False
         self.active_info = False
         self.hand_tiles = []

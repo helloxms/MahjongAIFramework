@@ -12,6 +12,18 @@ class SimpleMJPlayer(BaseMJPlayer):
     #  we define the logic to make an action through this method.  
     #  this method would be the core of your AI
 
+    '''
+    valid_actions:{'valid_actions': [{'action1': 'chow', 'action2': 'pong', 'action3': 'kong', 'action4': 'take', 'action5': 'play', 'action6': 'tin', 'action7': 'hu'}]}
+    hand_tiles:['P9', 'M2', 'P1', 'M9', 'M1', 'M7', 'M8', 'M1', 'P8', 'P9', 'S6', 'C', 'P', 'M4']
+    round_state: {'river_tiles': [], 'next_player': 3, 'round_count': 1, 
+    'seats': [
+    {'name': 'p1', 'uuid': 'cnbedzresnnaxflbpktlmk', 'state': 'active'}, 
+    {'name': 'p2', 'uuid': 'rxmwobjzuhffloobebyoim', 'state': 'active'}, 
+    {'name': 'p3', 'uuid': 'zoijvyspgzrctacppasqyu', 'state': 'active'}, 
+    {'name': 'p4', 'uuid': 'kpownyaxvovpyxibceraqf', 'state': 'active'}], 
+    'action_histories': 0}
+    cur_action:1
+    '''
     def declare_action(self, valid_actions, hand_tiles, round_state, cur_action):
         # valid_actions 
         call_action_info = valid_actions

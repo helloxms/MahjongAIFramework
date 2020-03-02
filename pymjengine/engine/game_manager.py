@@ -73,7 +73,7 @@ class GameManager:
         print("******func* step3. start a round")
         for round_count in range(1, max_round+1):
             print("*************************************************************************************************")
-            print("***************************************a new round***********************************************")
+            print("***********************************   a new round   *********************************************")
             print("round count:{}".format(round_count))
             if self.__is_game_finished(table): 
                 print("game finished")
@@ -84,38 +84,69 @@ class GameManager:
     def play_round(self, round_count):
         state, msgs = RoundManager.start_new_round(round_count, self.table)
         self.__message_check(msgs)
-        state["round_act_state"] = MJConstants.round_act_state.START
-        check_action_result = self.__publish_messages(msgs)
-        print("\n******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
-        if check_action_result > 0:
-            check_action = check_action_result
-            check_player_pos = state["cur_player"]
-            state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
-            self.table = state["table"]
-        if self.debug_info_level > 0:
-            print("******func* GameManager.play_round apply_action state:{} msgs:{}".format(state, msgs))
+        # player give a ready info
+        check_action_result = self.__publish_and_callbak_msg(msgs)
 
         while True:
             self.__message_check(msgs)
-            if state["round_act_state"] != MJConstants.round_act_state.FINISHED:  # continue the round
-                check_action_result = self.__publish_messages(msgs)
-                print("\n******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
-                if check_action_result > 0:
-                    state["cur_player"] = state["next_player"]
+            if state["round_act_state"] != MJConstants.round_act_state.FINISHED:  
+                # take and play query (no choice)
+                # step4. a player take a tile from wall
+                state["round_act_state"] = MJConstants.round_act_state.ACT_TAKE
+                check_player_pos = state["cur_player"]
+                check_action = state["cur_act"] 
+                state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
+                # player give a take info
+                check_action_result = self.__publish_and_callbak_msg(msgs)
+
+                # step5. a player drop a tile to river
+                state["round_act_state"] = MJConstants.round_act_state.ACT_PLAY
+                state["cur_act"] = MJConstants.Action.PLAY
+                check_action = state["cur_act"]
+                state, msgs = RoundManager.apply_action(state, check_player_pos, check_action )
+                 # player give a drop tile info
+                check_action_result = self.__publish_and_callbak_msg(msgs)
+
+                # chow pong kong query
+                # step6. who will do "chow pong kong tin hu" action?
+                # step7. a player will do call request
+                # step8. check the  rule right,refuse some one, authorize some one
+                # step9. do the action requst
+                choosed_player, choosed_action = self.__get_choosed_player(state, check_player_pos, check_action, False)
+                if choosed_action > 0:
+                    state["cur_player"] = choosed_player
                     state["next_player"] = state["table"].get_next_player(state["cur_player"])
-                    check_action = check_action_result
+                    check_action = choosed_action
                     check_player_pos = state["cur_player"]
                     print("checked action is:{} cur_player:{} next_player:{}".format(check_action, state["cur_player"], state["next_player"]))
                     state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
                     self.table = state["table"]
+                #
+                # step11. the next player recycle the same step 4-- step10
+                # step12. if the next player is the first player,a new round begin.
                 if state["next_player"] == self.table.banker:
                     state["round_act_state"] = MJConstants.round_act_state.FINISHED
             else:  
-                print("******func* GameManager.play_round wall size:{}".format(self.table.wall.size()))
-                print("******func* GameManager.play_round finish a round\n\n")
+                print("\n\n******func* GameManager.play_round finish a round\n\n")
                 break
-            # self.__publish_messages(msgs)
+
         return state["table"]
+
+    # 2020-03-02
+    # need add more game rule logic here
+    def __get_choosed_player(self, state, player_pos, action, bInclude=False):
+        table = state["table"]
+        for i in range (0,len(table.seats.players)):
+            if bInclude == False & i == player_pos:
+                continue
+            player = table.seats.players[i]
+            ask_message = MessageBuilder.build_ask_message(player_pos, state)
+            check_action_result = self.__callback_msg(player.uuid, ask_message)
+            print("******func* game_manager.__get_choosed_player check_action_result:{}".format(check_action_result))
+
+        choosed_player = state["table"].get_next_player(player_pos)
+        choosed_action = MJConstants.Action.TAKE
+        return choosed_player,choosed_action
 
 
     def __register_algorithm_to_message_handler(self, uuid, algorithm):
@@ -148,11 +179,20 @@ class GameManager:
         if invalid:
             raise Exception("Last message is not ask type. : %s" % msgs)
 
-    def __publish_messages(self, msgs):
+    # 2020-03-03
+    # In this function:
+    # there are a state update message + a callback message (combined in msgs)
+    # update message is boadcast to all player
+    # callback message is  specified one by one 
+    # we should get all other player's answer, then check the right one, then apply the action!
+    def __publish_and_callbak_msg(self, msgs):
         for address, msg in msgs[:-1]:
             self.message_handler.process_message(address, msg)
         self.message_summarizer.summarize_messages(msgs)
         return self.message_handler.process_message(*msgs[-1])
+
+    def __callback_msg(self, address, msg):
+        return self.message_handler.process_message(address, msg)
 
     def __generate_game_result(self, max_round, seats):
         config = self.__gen_config(max_round, self.table.banker)

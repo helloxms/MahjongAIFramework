@@ -51,7 +51,6 @@ class Table:
 
     def serialize(self):
         river_tiles = [tile.from_id() for tile in self._river_tiles]
-        print("table serialize wall size :{}".format(self.wall.size()))
         return [
             Seats.serialize(self.seats),
             Wall.serialize(self.wall), river_tiles,self.banker,self.cur_player
@@ -59,7 +58,6 @@ class Table:
 
     @classmethod
     def deserialize(self, serial):
-        print("******func* table.deserialize ")
         wall = Wall.deserialize(serial[1])
         river_tiles = [Tile.from_id(tid) for tid in serial[2]]
         table = self(cheat_wall=wall)

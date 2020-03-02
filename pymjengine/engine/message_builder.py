@@ -33,8 +33,9 @@ class MessageBuilder:
 
 
 
+    # update message: publish a player's action info
     @classmethod
-    def build_game_update_message(self, player_pos, action, state):
+    def build_game_update_message(self, state, player_pos, action):
         player = state["table"].seats.players[player_pos]
         message = {
             "message_type": self.GAME_UPDATE_MESSAGE,
