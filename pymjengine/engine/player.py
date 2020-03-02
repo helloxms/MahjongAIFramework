@@ -51,7 +51,7 @@ class Player:
         self.ask_act = act
         
     def get_ask_act(self):
-        #print("get_ask_act:{}".format(self.ask_act))
+        # print("get_ask_act:{}".format(self.ask_act))
         return self.ask_act
 
     def add_action_history(self, kind ):
@@ -65,6 +65,9 @@ class Player:
 
     def clear_active_info(self):
         self.active_info = False
+
+    def get_handtile_size(self):
+        return len(self.hand_tiles)
 
     def get_handtile_ids(self):
         tile_ids = [tile.to_id() for tile in self.hand_tiles]

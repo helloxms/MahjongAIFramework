@@ -1,10 +1,9 @@
 
 from pymjengine.engine.mj_constants import MJConstants
 from pymjengine.baseMJPlayer import BaseMJPlayer
-
-
-
 # Do not forget to make parent class as "BaseMJPlayer"
+
+
 class SimpleMJPlayer(BaseMJPlayer):  
 
     def __init__(self, name, debug_info_level=0):
@@ -12,6 +11,7 @@ class SimpleMJPlayer(BaseMJPlayer):
         self.name = name
     #  we define the logic to make an action through this method.  
     #  this method would be the core of your AI
+
     def declare_action(self, valid_actions, hand_tiles, round_state, cur_action):
         # valid_actions 
         call_action_info = valid_actions
@@ -24,7 +24,7 @@ class SimpleMJPlayer(BaseMJPlayer):
             return cur_action
         return cur_action   # action returned here is sent to the mahjong engine
 
-    #game info    
+    #   game info
     '''
     game_info:{
     'rule': {'banker': 1, 'max_round': 2}, 

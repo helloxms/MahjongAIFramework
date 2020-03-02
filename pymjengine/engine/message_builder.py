@@ -1,11 +1,6 @@
 from pymjengine.engine.data_encoder import DataEncoder
 
 
-
-
-
-
-
 class MessageBuilder:
 
     GAME_START_MESSAGE = "game_start_message"
@@ -74,11 +69,11 @@ class MessageBuilder:
         player = players[player_pos]
         hand_tiles = DataEncoder.encode_player(player, hand_tiles=True)["hand_tiles"]
         message = {
-            "message_type" : self.ASK_MESSAGE,
+            "message_type": self.ASK_MESSAGE,
             "hand_tiles": hand_tiles,
             "round_state": DataEncoder.encode_round_state(state),
-            "valid_actions":DataEncoder.encode_valid_actions(),
-            "cur_action":state["cur_act"],
+            "valid_actions": DataEncoder.encode_valid_actions(),
+            "cur_action": state["cur_act"],
             "action_histories": DataEncoder.encode_action_histories(state["table"])
         }
         return self.__build_ask_message(message)

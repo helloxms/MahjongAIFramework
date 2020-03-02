@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from pymjengine.engine.message_builder import MessageBuilder
 
+
 class MessageHandler:
 
     def __init__(self):
@@ -20,7 +21,6 @@ class MessageHandler:
                 receiver.receive_notification(msg["message"])
             else:
                 raise ValueError("Received unexpected message which type is [%s]" % msg["type"])
-
 
     def __fetch_receivers(self, address):
         if address == -1:
@@ -72,7 +72,6 @@ class MessageSummarizer(object):
     def summarize_round_start(self, message):
         base = "Started the round %d"
         return base % message["round_count"]
-
 
     def summarize_player_action(self, message):
         print("summarize player action {}".format(message))

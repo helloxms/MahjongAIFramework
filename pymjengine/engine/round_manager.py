@@ -11,7 +11,7 @@ class RoundManager:
     def start_new_round(self, round_count, table):
         print("*********************************************")
         print("******func* RoundManager.start_new_round")
-        #step3. start a round
+        # step3. start a round
         _state = self.__gen_initial_state(round_count, table)
         state = self.__deep_copy_state(_state)
         table = state["table"]
@@ -21,38 +21,40 @@ class RoundManager:
 
     @classmethod
     def apply_action(self, original_state, player_pos, action):
+        # apply current action
         state = self.__deep_copy_state(original_state)
         state = self.__update_state_by_action(state, player_pos, action)
-        
+        # and inform to all player
+        # wait all player's call
         update_msg = self.__update_message(state, action)
-        state["next_player"] = state["table"].next_ask_act_player_pos(state["next_player"])
-        state["valid_actions"] =['chow','pong','kong']
+        state["next_player"] = state["table"].get_next_player(player_pos)
+        state["valid_actions"] = ['chow', 'pong', 'kong']
         next_player_pos = state["next_player"]
         next_player = state["table"].seats.players[next_player_pos]
         ask_message = (next_player.uuid, MessageBuilder.build_ask_message(next_player_pos, state))
         return state, [update_msg, ask_message]
 
     @classmethod
-    def __update_message(self, state, action):
+    def __update_message(cls, state, action):
         return (-1, MessageBuilder.build_game_update_message(
-          state["next_player"], action,state))
+          state["next_player"], action, state))
         
     @classmethod
-    def __update_state_by_action(self, state, player_pos, action):
+    def __update_state_by_action(cls, state, player_pos, action):
         table = state["table"]
-        return self.__accept_action(state, player_pos, action)
+        return cls.__accept_action(state, player_pos, action)
 
     @classmethod
-    def __accept_action(self, state, player_pos, action):
+    def __accept_action(cls, state, player_pos, action):
         print("******func* RoundManager.__accept_action action:{}".format(action))
         player = state["table"].seats.players[player_pos]
         table = state["table"]
-        if action == MJConstants.Action.TAKE :
+        if action == MJConstants.Action.TAKE:
             tile = table.wall.draw_tile()
             player.add_hand_tile(tile)
             player.add_action_history(action)
-            print(table.wall.size())
-            print("player handtiles:{}".format(player.get_handtile_ids()))
+            print("wall size: {}  ,{}".format(table.wall.size(), state["table"].wall.size()))
+            print("player handtiles:{} size: {}".format(player.get_handtile_ids(), player.get_handtile_size()))
 
         return state
 
@@ -148,25 +150,27 @@ class RoundManager:
         ask_message = [(cur_player.uuid, MessageBuilder.build_ask_message(cur_player_pos, state))]
         return state, ask_message
 
-    #be carefull,for this init will miss some param,if we don't add them
+    # be carefull,for this init will miss some param,if we don't add them
     @classmethod
-    def __gen_initial_state(self, round_count, table):
+    def __gen_initial_state(cls, round_count, table):
         return {
         "round_count": round_count,
         "table": table,
         "cur_act" : MJConstants.Action.TAKE,
-        "next_player" : -1 ,
+        "cur_player" : -1,
+        "next_player" : -1,
         "round_act_state" : MJConstants.round_act_state.START
         }
 
-    #be carefull,for this deep copy will miss some param,if we don't add them
+    # be carefull,for this deep copy will miss some param,if we don't add them
     @classmethod
-    def __deep_copy_state(self, state):
+    def __deep_copy_state(cls, state):
         table_deepcopy = Table.deserialize(state["table"].serialize())
         return {
         "round_count": state["round_count"],
         "round_act_state": state["round_act_state"],
         "cur_act": state["cur_act"],
-        "next_player": state["next_player"]  , 
+        "cur_player": state["cur_player"],
+        "next_player": state["next_player"],
         "table": table_deepcopy
         }

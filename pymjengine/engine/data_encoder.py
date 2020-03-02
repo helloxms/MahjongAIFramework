@@ -42,12 +42,12 @@ class DataEncoder:
     def encode_valid_actions(self):
         return {
             "valid_actions": [
-              { "action1": "chow", \
-              "action2": "pong",\
-              "action3":"kong",\
-              "action4":"take",\
-              "action5":"play",\
-              "action6":"tin",\
+              {"action1": "chow",
+              "action2": "pong",
+              "action3":"kong",
+              "action4":"take",
+              "action5":"play",
+              "action6":"tin",
               "action7":"hu"
                },
             ]

@@ -59,12 +59,12 @@ class GameManager:
 
     def start_game(self, max_round):
         table = self.table
-        #step1. select the first player(banker)
+        # step1. select the first player(banker)
         self.table.banker = self.__get_banker_pos()
-        #step2. start from the first player,every one get 14 tiles
+        # step2. start from the first player,every one get 14 tiles
         self.__draw_tiles()
         self.__notify_game_start(max_round)
-        #step3. start a round
+        # step3. start a round
         for round_count in range(1, max_round+1):
             if self.__is_game_finished(table): 
                 print("game finished")
@@ -74,22 +74,34 @@ class GameManager:
 
     def play_round(self, round_count):
         state, msgs = RoundManager.start_new_round(round_count, self.table)
+        self.__message_check(msgs)
+        state["round_act_state"] = MJConstants.round_act_state.START
+        check_action_result = self.__publish_messages(msgs)
+        print("******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
+        if check_action_result > 0:
+            check_action = check_action_result
+            check_player_pos = state["cur_player"]
+            state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
         if self.debug_info_level > 0:
-        	print("******func* GameManager.play_round msgs:{}".format(msgs))
+            print("******func* GameManager.play_round apply_action state:{} msgs:{}".format(state, msgs))
+
         while True:
             self.__message_check(msgs)
-            if state["round_act_state"] != MJConstants.round_act_state.FINISHED :  # continue the round
-                check_action_answer = self.__publish_messages(msgs)
-                print("******func* GameManager.play_round check actions's answer is:{}".format(check_action_answer))
-                check_action = check_action_answer
-                check_player_pos = state["cur_player"]
-                state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
-                print("******func* GameManager.play_round here finish a round")
-                state["round_act_state"] = MJConstants.round_act_state.FINISHED
+            if state["round_act_state"] != MJConstants.round_act_state.FINISHED:  # continue the round
+                check_action_result = self.__publish_messages(msgs)
+                print("******func* GameManager.play_round check actions's answer is:{}".format(check_action_result))
+                if check_action_result > 0:
+                    state["cur_player"] = state["next_player"]
+                    check_action = check_action_result
+                    check_player_pos = state["cur_player"]
+                    state, msgs = RoundManager.apply_action(state, check_player_pos, check_action)
+
+                if state["next_player"] == self.table.banker:
+                    state["round_act_state"] = MJConstants.round_act_state.FINISHED
             else:  # finish the round after publish round result
                 print("******func* GameManager.play_round finish round")
-                self.__publish_messages(msgs)
                 break
+            # self.__publish_messages(msgs)
         return state["table"]
 
 
@@ -128,7 +140,6 @@ class GameManager:
             self.message_handler.process_message(address, msg)
         self.message_summarizer.summarize_messages(msgs)
         return self.message_handler.process_message(*msgs[-1])
-
 
     def __generate_game_result(self, max_round, seats):
         config = self.__gen_config(max_round, self.table.banker)
