@@ -20,7 +20,17 @@ class RoundManager:
         return state, update_msg + ask_message
 
     @classmethod
-    def apply_action(self, original_state, player_pos, action):
+    def apply_action_no_askmsg(self, original_state, player_pos, action):
+        print("******func* RoundManager.apply_action palyer:{} action:{}".format(player_pos, action))
+        # apply current action
+        state = self.__deep_copy_state(original_state)
+        state = self.__update_state_by_action(state, player_pos, action)
+        update_msg = self.__update_message(state, player_pos, action)
+        return state, [update_msg]
+
+    @classmethod
+    def apply_action_with_askmsg(self, original_state, player_pos, action):
+        print("******func* RoundManager.apply_action palyer:{} action:{}".format(player_pos, action))
         # apply current action
         state = self.__deep_copy_state(original_state)
         state = self.__update_state_by_action(state, player_pos, action)
@@ -38,7 +48,7 @@ class RoundManager:
         if target_player_pos >= 0:
             target_player = state["table"].seats.players[target_player_pos]
             ask_message = (target_player.uuid, MessageBuilder.build_ask_message(target_player_pos, state))
-        return state, [update_msg, ask_message]
+        return state, [update_msg, ask_message]        
         
 
     @classmethod
@@ -52,10 +62,10 @@ class RoundManager:
         if action == MJConstants.Action.PLAY:
             state["valid_actions"] = ['chow', 'pong', 'kong']
 
-        if target_player_pos >= 0:
-            target_player = state["table"].seats.players[target_player_pos]
-            ask_message = (target_player.uuid, MessageBuilder.build_ask_message(target_player_pos, state))
-        return message_handler.process_message(ask_message)
+        target_player = state["table"].seats.players[target_player_pos]
+        address = target_player.uuid
+        ask_message = MessageBuilder.build_ask_message(target_player_pos, state)
+        return message_handler.process_message(address, ask_message)
 
 
 
@@ -75,11 +85,25 @@ class RoundManager:
         player = state["table"].seats.players[player_pos]
         table = state["table"]
         if action == MJConstants.Action.TAKE:
+            print("do action take here")
             tile = table.wall.draw_tile()
             player.add_hand_tile(tile)
             player.add_action_history(action)
             print("wall size:{} player handtiles:{} size: {}".format(table.wall.size(), player.get_handtile_ids(), player.get_handtile_size()))
             state["table"].wall = table.wall
+        elif action == MJConstants.Action.PLAY:
+            print("do action play here")
+        elif action == MJConstants.Action.CHOW:
+            print("do action chow here")
+        elif action == MJConstants.Action.PONG:
+            print("do action pong here")
+        elif action == MJConstants.Action.KONG:
+            print("do action kong here")
+        elif action == MJConstants.Action.TIN:
+            print("do action tin here")
+        elif action == MJConstants.Action.HU:
+            print("do action hu here")
+
         return state
 
     @classmethod
@@ -97,7 +121,7 @@ class RoundManager:
             state["table"].cur_player = first_player
             state["cur_player"] = first_player
             state["next_player"] = state["table"].get_next_player(first_player)
-            state["cur_act"] = MJConstants.Action.START
+            state["cur_act"] = MJConstants.Action.READY
         else:
             state["next_player"] = -1           
         return self.__get_ask_msg(state)
@@ -147,9 +171,9 @@ class RoundManager:
     def __get_ask_msg(self, state):
         table = state["table"]
         cur_player_pos = state["cur_player"]
-        print("forward_act, wait player pos:{}".format(cur_player_pos)) 
+        print("__get_ask_msg forward player pos:{}".format(cur_player_pos)) 
         cur_player = table.seats.players[cur_player_pos]
-        print("forward_act, wait player uuid:{}".format(cur_player.uuid))
+        print("__get_ask_msg forward player uuid:{}".format(cur_player.uuid))
         ask_message = [(cur_player.uuid, MessageBuilder.build_ask_message(cur_player_pos, state))]
         return state, ask_message
 

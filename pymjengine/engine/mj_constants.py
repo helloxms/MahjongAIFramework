@@ -1,14 +1,16 @@
 class MJConstants:
 
     class Action:
-        START  = 0
-        TAKE  = 1
-        CHOW  = 2
-        PONG = 3
-        KONG = 4
-        PLAY = 5
-        TIN = 6
-        HU = 7
+        READY = 0
+        START  = 1
+        TAKE  = 2
+        CHOW  = 3
+        PONG = 4
+        KONG = 5
+        PLAY = 6
+        TIN = 7
+        HU = 8
+        PASS = 9
         
     class round_act_state:
         START = 0
@@ -33,3 +35,13 @@ class MJConstants:
         ACT_HU = 19
         FINISHED = 20
 
+    ACT_ID_STR_MAP={
+    0:'ready', 1:'start',  2:'take', 3:'chow', 4:'pong', 5:'kong', 6:'play',
+    7:'tin', 8:'hu', 9:'pass'
+
+    }
+
+    ACT_STR_ID_MAP={
+    'ready':0, 'start':1, 'take':2, 'chow':3, 'pong':4, 'kong':5, 'play':6,
+    'tin':7, 'hu':8, 'pass':9
+    }

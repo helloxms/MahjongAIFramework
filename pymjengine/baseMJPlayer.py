@@ -69,7 +69,7 @@ class BaseMJPlayer(object):
         return "Your client does not implement [ {0} ] method".format(msg)
 
     def __parse_ask_message(self, message):
-        if self.debug_info_level>0 :
+        if self.debug_info_level>1 :
             print("\n******func* baseMJPlayer.__parse_ask_message: {}".format(message))
         hand_tiles = message["hand_tiles"]
         round_state = message["round_state"]

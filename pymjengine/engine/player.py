@@ -1,7 +1,7 @@
 
 from pymjengine.engine.tile import Tile
 from pymjengine.engine.mj_constants import MJConstants
-
+import random
 
 
 
@@ -25,6 +25,13 @@ class Player:
         self.hand_tiles = []
         self.action_histories = []
 
+
+    def drop_hand_tile(self):
+        tile_ids = [tile.to_id() for tile in self.hand_tiles]
+        random.shuffle(tile_ids)
+        pop_id = tile_ids.pop()
+        self.hand_tiles = [Tile.from_id(tid) for tid in tile_ids]
+        return pop_id
 
     def add_hand_tile(self, tile):
         self.hand_tiles += [tile]

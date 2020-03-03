@@ -1,5 +1,5 @@
 from pymjengine.engine.data_encoder import DataEncoder
-
+from pymjengine.engine.mj_constants import MJConstants
 
 class MessageBuilder:
 
@@ -77,6 +77,19 @@ class MessageBuilder:
             "cur_action": state["cur_act"],
             "action_histories": DataEncoder.encode_action_histories(state["table"])
         }
+
+        if(state["cur_act"] == MJConstants.Action.READY):
+            print("==========> server: player{}, are you ready???????????????????".format(player_pos))
+        elif(state["cur_act"] == MJConstants.Action.TAKE):
+            print("==========> server: player{}, is it your take turn????????????".format(player_pos))
+        elif(state["cur_act"] == MJConstants.Action.PLAY):
+            print("==========> server: player{}, after PLAY,drop a tile,choose one action: pass,chow,pong,kong ???".format(player_pos))
+        elif(state["cur_act"] == MJConstants.Action.CHOW):
+            print("==========> server: player{}, after CHOW,drop a tile,choose one action: pass,chow,pong,kong ???".format(player_pos))
+        elif(state["cur_act"] == MJConstants.Action.PONG):
+            print("==========> server: player{}, after PONG,drop a tile,choose one action: pass,chow,pong,kong ???".format(player_pos))                        
+        else:
+            print("==========> server: player{}, who am I?".format(player_pos))
         return self.__build_ask_message(message)
 
     @classmethod
