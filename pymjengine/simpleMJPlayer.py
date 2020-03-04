@@ -13,9 +13,15 @@ class SimpleMJPlayer(BaseMJPlayer):
         self.debug_info_level = debug_info_level
         self.name = name
         self.hand_tiles = []
+
+
+
+
+
+
+        
     #  we define the logic to make an action through this method.  
     #  this method would be the core of your AI
-
     '''
     valid_actions:{'valid_actions': [{'action1': 'chow', 'action2': 'pong', 'action3': 'kong', 'action4': 'take', 'action5': 'play', 'action6': 'tin', 'action7': 'hu'}]}
     hand_tiles:['P9', 'M2', 'P1', 'M9', 'M1', 'M7', 'M8', 'M1', 'P8', 'P9', 'S6', 'C', 'P', 'M4']
@@ -53,9 +59,6 @@ class SimpleMJPlayer(BaseMJPlayer):
             if respons == 3:
                 print("")              
         self.hand_tiles = [Tile.TILE_STR_ID_MAP[tile] for tile in hand_tiles] 
-
-        
- 
         return respons   # action returned here is sent to the mahjong engine
 
     #   game info
