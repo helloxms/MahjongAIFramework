@@ -79,9 +79,11 @@ class RoundManager:
         return cls.__accept_action(state, player_pos, action)
 
     # step4. a player take a tile from wall
+    # 2020-03-04
+    # need do action and update player's state
     @classmethod
     def __accept_action(cls, state, player_pos, action):
-        print("******func* RoundManager.__accept_action palyer_pos:{} action:{}".format(player_pos, action))
+        # print("******func* RoundManager.__accept_action palyer_pos:{} action:{}".format(player_pos, action))
         player = state["table"].seats.players[player_pos]
         table = state["table"]
         if action == MJConstants.Action.TAKE:

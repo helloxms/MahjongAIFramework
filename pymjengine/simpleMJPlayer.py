@@ -38,14 +38,20 @@ class SimpleMJPlayer(BaseMJPlayer):
             # print("valid_actions:{} \nhand_tiles:{} \nround_state: {} \ncur_action:{}".format(
             #    call_action_info, hand_tiles, round_state, cur_action))
             print("player:{} :{}".format(self.name, MJConstants.ACT_ID_STR_MAP[cur_action]))
-            str_act = MJConstants.ACT_ID_STR_MAP[cur_action]
-            if cur_action == 2:
-                print("<========== response take, I will drop this xx tile~~~~")
-            if cur_action in [3,4,6]:
-                a = [3,4,5,9,9,9,9,9,9,9,9]
-                random.shuffle(a)
-                respons = a[0]
-                print("<========== response act:{}, my choise is:{} ~~~~~~~~~~\n".format( str_act, respons))                
+
+        str_act = MJConstants.ACT_ID_STR_MAP[cur_action]
+        if cur_action == 2:
+            print("<========== response take, I will drop this xx tile~~~~")
+        if cur_action in [3,4,6]:
+            a = [3,4,5,9,9,9,9,9,9,9,9,9,9,9]
+            random.shuffle(a)
+            respons = a[0]
+            str_drop = ""
+            if respons == 3 or respons == 4:
+                str_drop = "and drop xx tile"
+            print("<========== response act:{}, my choise is:{} {}~~~~~~~~~~\n".format( str_act, respons, str_drop))  
+            if respons == 3:
+                print("")              
         self.hand_tiles = [Tile.TILE_STR_ID_MAP[tile] for tile in hand_tiles] 
 
         

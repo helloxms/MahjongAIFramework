@@ -81,13 +81,13 @@ class MessageBuilder:
         if(state["cur_act"] == MJConstants.Action.READY):
             print("==========> server: player{}, are you ready???????????????????".format(player_pos))
         elif(state["cur_act"] == MJConstants.Action.TAKE):
-            print("==========> server: player{}, is it your take turn????????????".format(player_pos))
+            print("==========> server: player{}, is it your take and drop turn????????????".format(player_pos))
         elif(state["cur_act"] == MJConstants.Action.PLAY):
-            print("==========> server: player{}, after PLAY,drop a tile,choose one action: pass,chow,pong,kong ???".format(player_pos))
+            print("==========> server: player{}, after PLAY drop a tile, choose one: pass_9,chow_3,pong_4,kong_5 ???".format(player_pos))
         elif(state["cur_act"] == MJConstants.Action.CHOW):
-            print("==========> server: player{}, after CHOW,drop a tile,choose one action: pass,chow,pong,kong ???".format(player_pos))
+            print("==========> server: player{}, after CHOW drop a tile, choose one: pass_9,chow_3,pong_4,kong_5 ???".format(player_pos))
         elif(state["cur_act"] == MJConstants.Action.PONG):
-            print("==========> server: player{}, after PONG,drop a tile,choose one action: pass,chow,pong,kong ???".format(player_pos))                        
+            print("==========> server: player{}, after PONG drop a tile, choose one: pass_9,chow_3,pong_4,kong_5 ???".format(player_pos))                        
         else:
             print("==========> server: player{}, who am I?".format(player_pos))
         return self.__build_ask_message(message)

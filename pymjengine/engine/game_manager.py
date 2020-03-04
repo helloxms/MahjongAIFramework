@@ -129,7 +129,7 @@ class GameManager:
                     state["next_player"] = state["table"].get_next_player(state["cur_player"])
                     if choosed_action == MJConstants.Action.KONG or choosed_action == MJConstants.Action.PONG or choosed_action == MJConstants.Action.CHOW:
                         choosed_player = state["cur_player"]
-                        print("__get_choosed_player: checked action is:{} cur_player:{} next_player:{}".format(choosed_action, state["cur_player"], state["next_player"]))
+                        print("__get_choosed_player: checked cur_player:{} action:{} ".format(state["cur_player"], choosed_action))
                         if choosed_action == MJConstants.Action.KONG:                        
                             state, msgs = RoundManager.apply_action_no_askmsg(state, choosed_player, choosed_action)
                             state["cur_player"] = state["next_player"]
@@ -174,8 +174,7 @@ class GameManager:
                 print("******func* game_manager.__get_choosed_player check_action_result:{}".format(check_action_result))
                 result_map[i] = check_action_result
 
-        print("******func* game_manager.__get_choosed_player result:{}".format(result_map))
-        print("if there are all pass, go to the next player")
+        print("player choose result:{}".format(result_map))
         choosed_player = state["table"].get_next_player(player_pos)
         choosed_action = MJConstants.Action.TAKE
 
@@ -192,6 +191,8 @@ class GameManager:
                 choosed_player = i
                 choosed_action = MJConstants.Action.CHOW
                 break
+        if choosed_action == MJConstants.Action.TAKE:
+            print("all player pass, the next player{} take tile".format(choosed_player))
         return choosed_player,choosed_action
 
 
@@ -248,6 +249,7 @@ class GameManager:
         return self.message_handler.process_message(address, msg)
 
     def __generate_game_result(self, max_round, seats):
+        print("\n******func* GameManager.__generate_game_result")
         config = self.__gen_config(max_round, self.table.banker)
         result_message = MessageBuilder.build_game_result_message(config, seats)
         self.message_summarizer.summarize(result_message)
