@@ -3,6 +3,12 @@ from pymjengine.engine.mj_constants import MJConstants
 from pymjengine.engine.tile import Tile
 from pymjengine.baseMJPlayer import BaseMJPlayer
 import random
+import sys
+
+sys.path.append("..")
+sys.path.append("../../")
+
+from mahjong.tile import TilesConverter
 
 # Do not forget to make parent class as "BaseMJPlayer"
 
@@ -58,7 +64,12 @@ class SimpleMJPlayer(BaseMJPlayer):
             print("<========== response act:{}, my choise is:{} {}~~~~~~~~~~\n".format( str_act, respons, str_drop))  
             if respons == 3:
                 print("")              
-        self.hand_tiles = [Tile.TILE_STR_ID_MAP[tile] for tile in hand_tiles] 
+        self.hand_tiles = [Tile.TILE_STR_ID_MAP[ tile] for tile in hand_tiles] 
+        print(hand_tiles)
+        print(self.hand_tiles)
+        one_line_string = TilesConverter.to_one_line_string(self.hand_tiles)
+        print(one_line_string)
+
         return respons   # action returned here is sent to the mahjong engine
 
     #   game info
