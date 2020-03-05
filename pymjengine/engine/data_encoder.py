@@ -1,7 +1,7 @@
 from functools import reduce
 
 from pymjengine.engine.mj_constants import MJConstants
-
+from pymjengine.engine.tile import Tile
 
 
 class DataEncoder:
@@ -16,9 +16,15 @@ class DataEncoder:
             "state": self.__active_str()
         }
         if hand_tiles:
-            tile_hash = {"hand_tiles": [str(tile) for tile in player.hand_tiles]}
+            tile_hash = {"hand_tiles": [tile.to_id() for tile in player.hand_tiles]}
             hash_.update(tile_hash)
         return hash_
+
+    @classmethod
+    def encode_river(self, table):
+        return {
+            "river_tiles": [tid for tid in table.river_tiles]
+        }
 
     @classmethod
     def encode_seats(self, seats):
@@ -28,11 +34,16 @@ class DataEncoder:
 
     @classmethod
     def encode_game_information(self, config, seats):
+        winner = "none"
+        for player in seats.players:
+            if player.is_hu:
+                winner = player.name
         hsh = {
             "player_num" : len(seats.players),
             "rule": {
               "max_round": config["max_round"],
-              "banker": config["banker"]
+              "banker": config["banker"],
+              "winner": winner
             }
         }
         hsh.update(self.encode_seats(seats))
@@ -71,7 +82,6 @@ class DataEncoder:
     @classmethod
     def encode_round_state(self, state):
         hsh = {
-            "river_tiles": [str(tile) for tile in state["table"].get_river_tiles()],
             "next_player": state["next_player"],
             "round_count": state["round_count"]
         }

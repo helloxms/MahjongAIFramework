@@ -1,15 +1,15 @@
 
 class Tile:
-    
+
     TILE_ID_STR_MAP={
-      0  :  'M1',      1  :  'M2',      2  :  'M3',      3  :  'M4',      4  :  'M5',
-      5  :  'M6',      6  :  'M7',      7  :  'M8',      8  :  'M9',
-      9  :  'S1',      10  :  'S2',      11  :  'S3',      12  :  'S4',      13  :  'S5',
-      14  :  'S6',      15  :  'S7',      16  :  'S8',      17  :  'S9',
-      18  :  'P1',      19  :  'P2',      20  :  'P3',      21  :  'P4',      22  :  'P5',
-      23  :  'P6',      24  :  'P7',      25  :  'P8',      26  :  'P9',      
-      27  :  'E',      28  :  'S',      29  :  'W',      30  :  'N',       31  :  'C', 
-      32  :  'F',       33  :  'P'
+      0:  'M1',      1:  'M2',      2  :  'M3',      3  :  'M4',      4  :  'M5',
+      5:  'M6',      6:  'M7',      7  :  'M8',      8  :  'M9',
+      9:  'S1',      10:  'S2',      11  :  'S3',      12  :  'S4',      13  :  'S5',
+      14:  'S6',      15:  'S7',      16  :  'S8',      17  :  'S9',
+      18:  'P1',      19:  'P2',      20  :  'P3',      21  :  'P4',      22  :  'P5',
+      23:  'P6',      24:  'P7',      25  :  'P8',      26  :  'P9',
+      27:  'E',      28:  'S',      29  :  'W',      30  :  'N',       31  :  'C',
+      32:  'F',       33:  'P'
   }
       
     TILE_STR_ID_MAP ={
@@ -23,7 +23,7 @@ class Tile:
       'F' : 32,      'P' : 33
       }
       
-    #default is int type
+    # default is int type
     def __init__(self, iType):
         self.iType = iType
         self.strType = self.TILE_ID_STR_MAP[int(iType/4)]
@@ -44,6 +44,6 @@ class Tile:
     def from_id(cls, tid):
         iType = int(tid)
         return cls(iType)
-    
+
     def to_id(self):
         return self.iType

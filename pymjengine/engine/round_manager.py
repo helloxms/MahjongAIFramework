@@ -5,6 +5,12 @@ from pymjengine.engine.player import Player
 from pymjengine.engine.mj_constants import MJConstants
 from pymjengine.engine.message_builder import MessageBuilder
 
+import sys
+
+sys.path.append("..")
+sys.path.append("../../")
+from mahjong.tile import TilesConverter
+
 class RoundManager:
 
     @classmethod
@@ -88,13 +94,23 @@ class RoundManager:
         table = state["table"]
         if action == MJConstants.Action.TAKE:
             print("do action take here")
-            tile = table.wall.draw_tile()
-            player.add_hand_tile(tile)
+            tile_136 = table.wall.draw_tile()
+            player.add_hand_tile_136(tile_136)
             player.add_action_history(action)
             print("wall size:{} player handtiles:{} size: {}".format(table.wall.size(), player.get_handtile_ids(), player.get_handtile_size()))
+            print("river tiles:{}".format(table.river_tiles))
             state["table"].wall = table.wall
+            state["table"].river_tiles = table.river_tiles
         elif action == MJConstants.Action.PLAY:
-            print("do action play here")
+            # print("do action play start ,river is:{}".format(table.river_tiles))
+            drop_tile_136 = state["cur_drop"]
+            player.drop_hand_tile_136(drop_tile_136)
+            table.add_river_tiles(drop_tile_136)
+            state["table"].river_tiles = table.river_tiles
+            print("do action play end ,river is:{}".format(table.river_tiles))
+            if state["cur_winner"] >= 0:
+                print("cur winner is {}".format(player_pos))
+                state["cur_act"] = MJConstants.Action.HU
         elif action == MJConstants.Action.CHOW:
             print("do action chow here")
         elif action == MJConstants.Action.PONG:
@@ -111,7 +127,7 @@ class RoundManager:
     @classmethod
     def __deal_handtiles(self, wall, players):
         for player in players:
-            player.add_hand_tiles(wall.draw_tiles(14))
+            player.add_hand_tiles_136(wall.draw_tiles(14))
 
 
     @classmethod
@@ -186,8 +202,10 @@ class RoundManager:
         "round_count": round_count,
         "table": table,
         "cur_act" : MJConstants.Action.TAKE,
+        "cur_drop": -1,
         "cur_player" : -1,
         "next_player" : -1,
+        "cur_winner": -1,
         "round_act_state" : MJConstants.round_act_state.START
         }
 
@@ -199,7 +217,9 @@ class RoundManager:
         "round_count": state["round_count"],
         "round_act_state": state["round_act_state"],
         "cur_act": state["cur_act"],
+        "cur_drop": state["cur_drop"],
         "cur_player": state["cur_player"],
         "next_player": state["next_player"],
+        "cur_winner": state["cur_winner"],
         "table": table_deepcopy
         }

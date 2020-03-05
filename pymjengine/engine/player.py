@@ -3,6 +3,11 @@ from pymjengine.engine.tile import Tile
 from pymjengine.engine.mj_constants import MJConstants
 import random
 
+import sys
+
+sys.path.append("..")
+sys.path.append("../../")
+from mahjong.tile import TilesConverter
 
 
 class Player:
@@ -25,18 +30,24 @@ class Player:
         self.hand_tiles = []
         self.action_histories = []
 
-
-    def drop_hand_tile(self):
+    def drop_hand_tile_34(self, tile_34):
         tile_ids = [tile.to_id() for tile in self.hand_tiles]
-        random.shuffle(tile_ids)
-        pop_id = tile_ids.pop()
-        self.hand_tiles = [Tile.from_id(tid) for tid in tile_ids]
-        return pop_id
+        tile_136 = TilesConverter.find_34_tile_in_136_array(tile_34, tile_ids)
+        if tile_136:
+            self.drop_hand_tile_136(self, tile_136)
 
-    def add_hand_tile(self, tile):
+    def drop_hand_tile_136(self, tile_136):
+        for tile in self.hand_tiles:
+            if tile_136 == tile.iType:
+                self.hand_tiles.remove(tile)
+                print("player:{} drop a handtile_136: {}".format(self.name, tile_136))
+                break
+        return tile_136
+
+    def add_hand_tile_136(self, tile):
         self.hand_tiles += [tile]
 
-    def add_hand_tiles(self, tiles):
+    def add_hand_tiles_136(self, tiles):
         self.hand_tiles += tiles
 
     def clear_hand_tiles(self):
@@ -91,7 +102,8 @@ class Player:
     def deserialize(self, serial):
         tile_ids = [Tile.from_id(tid) for tid in serial[3]]
         player = self(serial[1], serial[0])
-        if len(tile_ids)!=0: player.add_hand_tiles(tile_ids)
+        if len(tile_ids) != 0:
+            player.add_hand_tiles_136(tile_ids)
         player.action_histories = serial[4]
         player.active_info = serial[5]
         return player

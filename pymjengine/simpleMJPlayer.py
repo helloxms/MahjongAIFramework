@@ -1,4 +1,3 @@
-
 from pymjengine.engine.mj_constants import MJConstants
 from pymjengine.engine.tile import Tile
 from pymjengine.baseMJPlayer import BaseMJPlayer
@@ -7,26 +6,60 @@ import sys
 
 sys.path.append("..")
 sys.path.append("../../")
-
 from mahjong.tile import TilesConverter
+from mahjong.divider import HandDivider
+from mahjong.shanten import Shanten
 
 # Do not forget to make parent class as "BaseMJPlayer"
 
 
-class SimpleMJPlayer(BaseMJPlayer):  
+class SimpleMJPlayer(BaseMJPlayer):
 
     def __init__(self, name, debug_info_level=0):
         self.debug_info_level = debug_info_level
         self.name = name
         self.hand_tiles = []
 
+    def calc_drop_tile(self, hand_tiles):
+        hand = HandDivider()
+        shanten = Shanten()
+        print(hand_tiles.sort())
+        str_tiles = [Tile.TILE_ID_STR_MAP[int(id/4)] for id in hand_tiles]
+        print(str_tiles)
+        one_line_string = TilesConverter.to_one_line_string(hand_tiles)
+        print(one_line_string)
 
+        tiles_34_array = TilesConverter.one_line_string_to_34_array(one_line_string)
+        # print("hand_tiles len:{}".format(len(hand_tiles)))
+        min_shanten = 9
+        min_shanten_pos = -1
+        for i in range(0, len(tiles_34_array)):
+            if tiles_34_array[i] > 0:
+                tiles_34_array[i] -= 1
+                count = shanten.calculate_shanten(tiles_34_array)
+                # print("cur shanten count:{}".format(count))
+                if min_shanten > count:
+                    min_shanten = count
+                    min_shanten_pos = i
+                tiles_34_array[i] += 1
 
+        if min_shanten_pos >= 0:
+            print("min_shanten_pos is:{} drop tile is:{} ".format(min_shanten_pos, Tile.TILE_ID_STR_MAP[min_shanten_pos]))
+            tiles_34_array[min_shanten_pos] -= 1
 
+        tile_136 = TilesConverter.find_34_tile_in_136_array(min_shanten_pos, hand_tiles)
+        print("drop tile_136 is:{}".format(tile_136))
+        if tile_136 is None:
+            print("ERROR!ERROR!ERROR!ERROR!ERROR!ERROR!ERROR!ERROR!ERROR!ERROR!")
 
+        count = shanten.calculate_shanten(tiles_34_array)
+        print("min shanten count is:{}".format(count))
+        result1 = hand.divide_hand(tiles_34_array)
+        if len(result1) > 0:
+            print(result1)
+        return tile_136, count
 
-        
-    #  we define the logic to make an action through this method.  
+    #  we define the logic to make an action through this method.
     #  this method would be the core of your AI
     '''
     valid_actions:{'valid_actions': [{'action1': 'chow', 'action2': 'pong', 'action3': 'kong', 'action4': 'take', 'action5': 'play', 'action6': 'tin', 'action7': 'hu'}]}
@@ -40,6 +73,7 @@ class SimpleMJPlayer(BaseMJPlayer):
     'action_histories': 0}
     cur_action:1
     '''
+
     def declare_action(self, valid_actions, hand_tiles, round_state, cur_action):
         # valid_actions 
         call_action_info = valid_actions
@@ -53,24 +87,28 @@ class SimpleMJPlayer(BaseMJPlayer):
 
         str_act = MJConstants.ACT_ID_STR_MAP[cur_action]
         if cur_action == 2:
-            print("<========== response take, I will drop this xx tile~~~~")
-        if cur_action in [3,4,6]:
-            a = [3,4,5,9,9,9,9,9,9,9,9,9,9,9]
+
+            tile_136, count  = self.calc_drop_tile(hand_tiles)
+            if tile_136 >= 0:
+                print("<========== response take, I will drop this {} {}tile~~~~~~~~~~~~".format(Tile.TILE_ID_STR_MAP[int(tile_136/4)], tile_136))
+            if count == -1:
+                print("\n\n*********************** response take, I will call HU!! ***********************\n\n")
+                print("\n\n*********************** response take, I will call HU!! ***********************\n\n")
+                print("\n\n*********************** response take, I will call HU!! ***********************\n\n")
+            respons = [2, tile_136, count]
+
+        if cur_action in [3, 4, 6]:
+            # a = [3, 4, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+            a = [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
             random.shuffle(a)
             respons = a[0]
             str_drop = ""
             if respons == 3 or respons == 4:
                 str_drop = "and drop xx tile"
-            print("<========== response act:{}, my choise is:{} {}~~~~~~~~~~\n".format( str_act, respons, str_drop))  
+            print("<========== response act:{}, my choise is:{} {}~~~~~~~~~~\n".format(str_act, respons, str_drop))
             if respons == 3:
-                print("")              
-        self.hand_tiles = [Tile.TILE_STR_ID_MAP[ tile] for tile in hand_tiles] 
-        print(hand_tiles)
-        print(self.hand_tiles)
-        one_line_string = TilesConverter.to_one_line_string(self.hand_tiles)
-        print(one_line_string)
-
-        return respons   # action returned here is sent to the mahjong engine
+                print("")
+        return respons  # action returned here is sent to the mahjong engine
 
     #   game info
     '''
@@ -84,6 +122,7 @@ class SimpleMJPlayer(BaseMJPlayer):
     {'uuid': 'qmxaschksmbmdfxifarinm', 'state': 'participating', 'name': 'p4'}
     ]}
     '''
+
     def receive_game_start_message(self, game_info):
         if self.debug_info_level > 1:
             print("==========> player:{}  (BaseMJPlayer)AI receive_game_start_message".format(self.name))
@@ -100,6 +139,7 @@ class SimpleMJPlayer(BaseMJPlayer):
     {'state': 'participating', 'name': 'p3', 'uuid': 'tkfrcdwejhokkqceelxxey'}, 
     {'state': 'participating', 'name': 'p4', 'uuid': 'wmjtfcbvfyiidyrwifqvta'}]
     '''
+
     def receive_round_start_message(self, round_count, action_info, seats):
         if self.debug_info_level > 1:
             print("==========> player:{}   (BaseMJPlayer)AI receive_round_start_message".format(self.name))
@@ -119,6 +159,7 @@ class SimpleMJPlayer(BaseMJPlayer):
     'next_player': -1, 
     'action_histories': 0}
     '''
+
     def receive_game_update_message(self, action_info, round_state):
         if self.debug_info_level > 1:
             print("==========> player:{}   (BaseMJPlayer)AI receive_game_update_message".format(self.name))

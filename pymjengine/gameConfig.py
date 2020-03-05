@@ -19,8 +19,8 @@ def start_mahjong(config, debug_info_level=0):
 
 def _format_result(result_message):
     return {
-            "rule": result_message["message"]["game_information"]["rule"],
-            "players": result_message["message"]["game_information"]["seats"]
+            "rule": result_message["message"]["game_information"]["rule"]
+            # "players": result_message["message"]["game_information"]["seats"]
             }
 
 class Config(object):

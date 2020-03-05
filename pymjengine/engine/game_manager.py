@@ -1,5 +1,4 @@
 
-
 import random
 from collections import OrderedDict
 
@@ -8,7 +7,7 @@ from pymjengine.engine.table import Table
 from pymjengine.engine.player import Player
 from pymjengine.engine.round_manager import RoundManager
 from pymjengine.engine.message_builder import MessageBuilder
-from pymjengine.engine.message_handler import MessageHandler,MessageSummarizer
+from pymjengine.engine.message_handler import MessageHandler ,MessageSummarizer
 
 '''
 server->client:
@@ -71,7 +70,7 @@ class GameManager:
         self.__notify_game_start(max_round)
         # step3. start a round
         print("******func* step3. start a round")
-        for round_count in range(1, max_round+1):
+        for round_count in range(1, max_round + 1):
             print("*************************************************************************************************")
             print("***********************************   a new round   *********************************************")
             print("round count:{}".format(round_count))
@@ -88,9 +87,10 @@ class GameManager:
         check_action_result = self.__publish_and_callbak_msg(msgs)
         state["round_act_state"] = MJConstants.round_act_state.START
         state["cur_act"] = MJConstants.Action.TAKE
+        state["cur_winner"] = -1
 
         while True:
-            #self.__message_check(msgs)
+            # self.__message_check(msgs)
             if state["round_act_state"] != MJConstants.round_act_state.FINISHED:  
                 # take and play query (no choice)
                 # step4. a player take a tile from wall
@@ -102,20 +102,22 @@ class GameManager:
                     state, msgs = RoundManager.apply_action_with_askmsg(state, check_player_pos, check_action)
                     # player give a take info in check_action_result!
                     # here result should be a tile info!
-                    check_action_result = self.__publish_and_callbak_msg(msgs) 
-                    player = self.table.seats.players[check_player_pos] # test
-                    tid = player.drop_hand_tile() # test               
-                    client_drop_tiles.append(tid)    # test
+                    check_action_result = self.__publish_and_callbak_msg(msgs)
+                    state["cur_drop"] = check_action_result[1]
+                    if check_action_result[2] == -1:
+                        state["cur_winner"] = check_player_pos
                     
-                    if check_action_result == MJConstants.Action.TAKE: 
-                        print("==========> server: player{}, ok, i will drop this one xx".format(check_player_pos))
+                    if check_action_result[0] == MJConstants.Action.TAKE:
+                        print("==========> server: player{}, ok, i will drop this tile:{}".format(check_player_pos, check_action_result
+                                                                                                      [1]))
                     state["cur_act"] = MJConstants.Action.PLAY
 
-                if state["cur_act"] == MJConstants.Action.PLAY and len(client_drop_tiles) > 0:
+                if state["cur_act"] == MJConstants.Action.PLAY and state["cur_drop"] >= 0:
                     # step5. a player drop a tile to river
                     check_action = state["cur_act"]
                     state, msgs = RoundManager.apply_action_no_askmsg(state, check_player_pos, check_action ) 
                     self.__publish_and_no_return(msgs)
+                    check_action = state["cur_act"]
 
                 # pass chow pong kong query
                 # step6. who will do "pass chow pong kong tin hu" action?
@@ -141,12 +143,16 @@ class GameManager:
                             state, msgs = RoundManager.apply_action_with_askmsg(state, choosed_player, choosed_action)
 
                 print("round count:{} cur_player:{} cur_act:{} banker:{}".format(round_count, state['cur_player'], state['cur_act'], self.table.banker))
-                self.table = state["table"]
+
                 #
                 # step11. the next player recycle the same step 4-- step10
                 # step12. if the next player is the first player,a new round begin.
                 if state["next_player"] == self.table.banker and state["cur_act"] == MJConstants.Action.TAKE :
                     state["round_act_state"] = MJConstants.round_act_state.FINISHED
+                if state["cur_winner"] >= 0:
+                    state["table"].seats.players[state["cur_winner"]].set_hu(True)
+                    state["round_act_state"] = MJConstants.round_act_state.FINISHED
+                self.table = state["table"]
             else:  
                 print("\n\n******func* GameManager.play_round finish a round\n\n")
                 break
@@ -164,21 +170,22 @@ class GameManager:
         result_map[3] = 9
         result_map[player_pos] = 0
         print("******func* __get_choosed_player player size:{}".format(len(table.seats.players)))
-        for i in range (0,len(table.seats.players)):
+        for i in range (0 ,len(table.seats.players)):
             if (bInclude == False) and (i == player_pos):
                 print("skip player{}".format(player_pos))
             else:
                 player = table.seats.players[i]
                 ask_message = MessageBuilder.build_ask_message(i, state)
                 check_action_result = self.__callback_msg(player.uuid, ask_message)
-                print("******func* game_manager.__get_choosed_player check_action_result:{}".format(check_action_result))
+                print \
+                    ("******func* game_manager.__get_choosed_player check_action_result:{}".format(check_action_result))
                 result_map[i] = check_action_result
 
         print("player choose result:{}".format(result_map))
         choosed_player = state["table"].get_next_player(player_pos)
         choosed_action = MJConstants.Action.TAKE
 
-        for i in range(0,4):
+        for i in range(0 ,4):
             if result_map[i] == MJConstants.Action.KONG:
                 choosed_player = i
                 choosed_action = MJConstants.Action.KONG
@@ -193,7 +200,7 @@ class GameManager:
                 break
         if choosed_action == MJConstants.Action.TAKE:
             print("all player pass, the next player{} take tile".format(choosed_player))
-        return choosed_player,choosed_action
+        return choosed_player ,choosed_action
 
 
     def __register_algorithm_to_message_handler(self, uuid, algorithm):
@@ -206,7 +213,7 @@ class GameManager:
         return uuid
 
     def __notify_game_start(self, max_round):
-    	#config is the play rule
+    	# config is the play rule
         config = self.__gen_config(max_round, self.table.banker)
         start_msg = MessageBuilder.build_game_start_message(config, self.table.seats)
         self.message_handler.process_message(-1, start_msg)
@@ -265,14 +272,13 @@ class GameManager:
         for player in self.table.seats.players:
             tiles = self.table.wall.draw_tiles(14)
             print("draw tiles: {}".format([tid.to_id() for tid in tiles] ))
-            player.add_hand_tiles( tiles )
-    		
+            player.add_hand_tiles_136(tiles)
 
-    #return 0,1,2,3 as index position
+    # return 0,1,2,3 as index position
     def __get_banker_pos(self):
-    	a = [1,2,3,4]
+    	a = [1 ,2 ,3 ,4]
     	random.shuffle(a)
-    	return a[0]-1
+    	return a[0 ] -1
 
     def __config_check(self):
         return
@@ -285,6 +291,6 @@ class GameManager:
 
     def __generate_uuid(self):
         uuid_size = 22
-        chars = [chr(code) for code in range(97,123)]
+        chars = [chr(code) for code in range(97 ,123)]
         return "".join([random.choice(chars) for _ in range(uuid_size)])
 
