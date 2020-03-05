@@ -1,5 +1,6 @@
 from functools import reduce
 
+from pymjengine.engine import message_handler
 from pymjengine.engine.table import Table
 from pymjengine.engine.player import Player
 from pymjengine.engine.mj_constants import MJConstants
@@ -108,6 +109,7 @@ class RoundManager:
             table.add_river_tiles(drop_tile_136)
             state["table"].river_tiles = table.river_tiles
             print("do action play end ,river is:{}".format(table.river_tiles))
+            state["table"].last_drop_tile_136 = player.last_drop_tile_136
             if state["cur_winner"] >= 0:
                 print("cur winner is {}".format(player_pos))
                 state["cur_act"] = MJConstants.Action.HU

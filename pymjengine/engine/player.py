@@ -29,6 +29,7 @@ class Player:
         self.active_info = False
         self.hand_tiles = []
         self.action_histories = []
+        self.last_drop_tile_136 = -1
 
     def drop_hand_tile_34(self, tile_34):
         tile_ids = [tile.to_id() for tile in self.hand_tiles]
@@ -40,6 +41,7 @@ class Player:
         for tile in self.hand_tiles:
             if tile_136 == tile.iType:
                 self.hand_tiles.remove(tile)
+                self.last_drop_tile_136 = tile_136
                 print("player:{} drop a handtile_136: {}".format(self.name, tile_136))
                 break
         return tile_136

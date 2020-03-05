@@ -74,6 +74,7 @@ class MessageBuilder:
             "round_state": DataEncoder.encode_round_state(state),
             "valid_actions": DataEncoder.encode_valid_actions(),
             "cur_action": state["cur_act"],
+            "last_drop_tile_136": player.last_drop_tile_136,
             "action_histories": DataEncoder.encode_action_histories(state["table"])
         }
 

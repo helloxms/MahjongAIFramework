@@ -170,15 +170,14 @@ class GameManager:
         result_map[3] = 9
         result_map[player_pos] = 0
         print("******func* __get_choosed_player player size:{}".format(len(table.seats.players)))
-        for i in range (0 ,len(table.seats.players)):
-            if (bInclude == False) and (i == player_pos):
+        for i in range(0, len(table.seats.players)):
+            if not bInclude and (i == player_pos):
                 print("skip player{}".format(player_pos))
             else:
                 player = table.seats.players[i]
                 ask_message = MessageBuilder.build_ask_message(i, state)
                 check_action_result = self.__callback_msg(player.uuid, ask_message)
-                print \
-                    ("******func* game_manager.__get_choosed_player check_action_result:{}".format(check_action_result))
+                print("******func* game_manager.__get_choosed_player check_action_result:{}".format(check_action_result))
                 result_map[i] = check_action_result
 
         print("player choose result:{}".format(result_map))

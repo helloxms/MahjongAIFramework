@@ -42,8 +42,8 @@ class BaseMJPlayer(object):
 
     def respond_to_ask(self, message):
         """Called from Player when ask message received from RoundManager"""
-        valid_actions, hand_tiles, round_state, cur_action = self.__parse_ask_message(message)
-        return self.declare_action(valid_actions, hand_tiles, round_state, cur_action)
+        valid_actions, hand_tiles, round_state, cur_action, last_drop_tile_136 = self.__parse_ask_message(message)
+        return self.declare_action(valid_actions, hand_tiles, round_state, cur_action, last_drop_tile_136)
 
     def receive_notification(self, message):
         """Called from Player when notification received from RoundManager"""
@@ -75,7 +75,8 @@ class BaseMJPlayer(object):
         round_state = message["round_state"]
         valid_actions = message["valid_actions"]
         cur_action = message["cur_action"]
-        return valid_actions, hand_tiles, round_state, cur_action
+        last_drop_tile_136 = message["last_drop_tile_136"]
+        return valid_actions, hand_tiles, round_state, cur_action, last_drop_tile_136
 
     def __parse_game_start_message(self, message):
         game_info = message["game_information"]
