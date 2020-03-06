@@ -13,7 +13,7 @@ class BaseMJPlayer(object):
     - receive_round_result_message
     """
     def __init__(self):
-        self.debug_info_level= 0
+        self.debug_info_level = 0
 
     def declare_action(self, valid_actions, hand_tiles, round_state, cur_action):
         err_msg = self.__build_err_msg("declare_action")
@@ -69,8 +69,9 @@ class BaseMJPlayer(object):
         return "Your client does not implement [ {0} ] method".format(msg)
 
     def __parse_ask_message(self, message):
-        if self.debug_info_level>1 :
-            print("\n******func* baseMJPlayer.__parse_ask_message: {}".format(message))
+        if self.debug_info_level > 0:
+            # print("\n******func* baseMJPlayer.__parse_ask_message: {}".format(message))
+            pass
         hand_tiles = message["hand_tiles"]
         round_state = message["round_state"]
         valid_actions = message["valid_actions"]

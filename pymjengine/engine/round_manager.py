@@ -31,16 +31,16 @@ class RoundManager:
         print("******func* RoundManager.apply_action palyer:{} action:{}".format(player_pos, action))
         # apply current action
         state = self.__deep_copy_state(original_state)
-        state = self.__update_state_by_action(state, player_pos, action)
+        state = self.__update_state_by_action(state, player_pos, action, -1)
         update_msg = self.__update_message(state, player_pos, action)
         return state, [update_msg]
 
     @classmethod
-    def apply_action_with_askmsg(self, original_state, player_pos, action):
-        print("******func* RoundManager.apply_action palyer:{} action:{}".format(player_pos, action))
+    def apply_action_with_askmsg(self, original_state, player_pos, action, drop_tile_136):
+        print("******func* RoundManager.apply_action palyer:{} action:{} tile:{}".format(player_pos, action, drop_tile_136))
         # apply current action
         state = self.__deep_copy_state(original_state)
-        state = self.__update_state_by_action(state, player_pos, action)
+        state = self.__update_state_by_action(state, player_pos, action, drop_tile_136)
         update_msg = self.__update_message(state, player_pos, action)
         # then we ask for player's call
         state["next_player"] = state["table"].get_next_player(player_pos)
@@ -81,15 +81,15 @@ class RoundManager:
         return (-1, MessageBuilder.build_game_update_message(state, player_pos, action))
         
     @classmethod
-    def __update_state_by_action(cls, state, player_pos, action):
+    def __update_state_by_action(cls, state, player_pos, action, tile):
         table = state["table"]
-        return cls.__accept_action(state, player_pos, action)
+        return cls.__accept_action(state, player_pos, action, tile)
 
     # step4. a player take a tile from wall
     # 2020-03-04
     # need do action and update player's state
     @classmethod
-    def __accept_action(cls, state, player_pos, action):
+    def __accept_action(cls, state, player_pos, action, tile):
         # print("******func* RoundManager.__accept_action palyer_pos:{} action:{}".format(player_pos, action))
         player = state["table"].seats.players[player_pos]
         table = state["table"]
@@ -109,12 +109,19 @@ class RoundManager:
             table.add_river_tiles(drop_tile_136)
             state["table"].river_tiles = table.river_tiles
             print("do action play end ,river is:{}".format(table.river_tiles))
-            state["table"].last_drop_tile_136 = player.last_drop_tile_136
+            state["last_drop_tile_136"] = player.last_drop_tile_136
             if state["cur_winner"] >= 0:
                 print("cur winner is {}".format(player_pos))
                 state["cur_act"] = MJConstants.Action.HU
         elif action == MJConstants.Action.CHOW:
             print("do action chow here")
+            player.drop_hand_tile_136(tile)
+            player.add_hand_tile_136(state["last_drop_tile_136"])
+            player.add_action_history(action)
+            state["table"].river_tiles.append(tile)
+            state["table"].river_tiles.remove(state["last_drop_tile_136"])
+            state["last_drop_tile_136"] = tile
+
         elif action == MJConstants.Action.PONG:
             print("do action pong here")
         elif action == MJConstants.Action.KONG:
@@ -158,6 +165,7 @@ class RoundManager:
             state["cur_player"] = first_player
             state["next_player"] = state["table"].get_next_player(first_player)
             state["cur_act"] = MJConstants.Action.TAKE
+            state["last_drop_tile_136"] = -1
         else:
             state["next_player"] = -1           
         return self.__get_ask_msg(state)
@@ -208,7 +216,8 @@ class RoundManager:
         "cur_player" : -1,
         "next_player" : -1,
         "cur_winner": -1,
-        "round_act_state" : MJConstants.round_act_state.START
+        "round_act_state" : MJConstants.round_act_state.START,
+        "last_drop_tile_136": -1
         }
 
     # be carefull,for this deep copy will miss some param,if we don't add them
@@ -223,5 +232,6 @@ class RoundManager:
         "cur_player": state["cur_player"],
         "next_player": state["next_player"],
         "cur_winner": state["cur_winner"],
+        "last_drop_tile_136": state["last_drop_tile_136"],
         "table": table_deepcopy
         }

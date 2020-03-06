@@ -91,15 +91,15 @@ class GameManager:
 
         while True:
             # self.__message_check(msgs)
-            if state["round_act_state"] != MJConstants.round_act_state.FINISHED:  
+            if state["round_act_state"] != MJConstants.round_act_state.FINISHED:
                 # take and play query (no choice)
                 # step4. a player take a tile from wall
                 check_player_pos = state["cur_player"]
                 check_action = state["cur_act"] 
                 client_drop_tiles = []
 
-                if state["cur_act"] == MJConstants.Action.TAKE :
-                    state, msgs = RoundManager.apply_action_with_askmsg(state, check_player_pos, check_action)
+                if state["cur_act"] == MJConstants.Action.TAKE:
+                    state, msgs = RoundManager.apply_action_with_askmsg(state, check_player_pos, check_action, -1)
                     # player give a take info in check_action_result!
                     # here result should be a tile info!
                     check_action_result = self.__publish_and_callbak_msg(msgs)
@@ -125,7 +125,7 @@ class GameManager:
                 # step8. check the  rule right,refuse some one, authorize some one
                 # step9. do the action requst
                 if check_action == MJConstants.Action.PLAY or check_action == MJConstants.Action.CHOW or check_action == MJConstants.Action.PONG :
-                    choosed_player, choosed_action = self.__get_choosed_player(state, check_player_pos, check_action, False)
+                    choosed_player, choosed_action, choosed_tile = self.__get_choosed_player(state, check_player_pos, check_action, False)
                     state["cur_act"] = choosed_action
                     state["cur_player"] = choosed_player
                     state["next_player"] = state["table"].get_next_player(state["cur_player"])
@@ -140,14 +140,14 @@ class GameManager:
                             choosed_action = MJConstants.Action.TAKE
                             state["cur_act"] = MJConstants.Action.TAKE
                         else:
-                            state, msgs = RoundManager.apply_action_with_askmsg(state, choosed_player, choosed_action)
+                            state, msgs = RoundManager.apply_action_with_askmsg(state, choosed_player, choosed_action, choosed_tile)
 
                 print("round count:{} cur_player:{} cur_act:{} banker:{}".format(round_count, state['cur_player'], state['cur_act'], self.table.banker))
 
                 #
                 # step11. the next player recycle the same step 4-- step10
                 # step12. if the next player is the first player,a new round begin.
-                if state["next_player"] == self.table.banker and state["cur_act"] == MJConstants.Action.TAKE :
+                if state["next_player"] == self.table.banker and state["cur_act"] == MJConstants.Action.TAKE:
                     state["round_act_state"] = MJConstants.round_act_state.FINISHED
                 if state["cur_winner"] >= 0:
                     state["table"].seats.players[state["cur_winner"]].set_hu(True)
@@ -161,15 +161,15 @@ class GameManager:
 
     # 2020-03-02
     # need add more game rule logic here
-    def __get_choosed_player(self, state, player_pos, action, bInclude=False):
+    def __get_choosed_player(self, state, player_pos, action, bInclude = False):
         table = state["table"]
         result_map = {}
-        result_map[0] = 9
-        result_map[1] = 9
-        result_map[2] = 9
-        result_map[3] = 9
-        result_map[player_pos] = 0
-        print("******func* __get_choosed_player player size:{}".format(len(table.seats.players)))
+        result_map[0] = [9, -1, -1]
+        result_map[1] = [9, -1, -1]
+        result_map[2] = [9, -1, -1]
+        result_map[3] = [9, -1, -1]
+        result_map[player_pos] = [0, -1, -1]
+        # print("******func* __get_choosed_player player size:{}".format(len(table.seats.players)))
         for i in range(0, len(table.seats.players)):
             if not bInclude and (i == player_pos):
                 print("skip player{}".format(player_pos))
@@ -183,23 +183,25 @@ class GameManager:
         print("player choose result:{}".format(result_map))
         choosed_player = state["table"].get_next_player(player_pos)
         choosed_action = MJConstants.Action.TAKE
+        choosed_tile = -1
 
-        for i in range(0 ,4):
-            if result_map[i] == MJConstants.Action.KONG:
+        for i in range(0, 4):
+            if result_map[i][0] == MJConstants.Action.KONG:
                 choosed_player = i
                 choosed_action = MJConstants.Action.KONG
                 break
-            elif result_map[i] == MJConstants.Action.PONG:
+            elif result_map[i][0] == MJConstants.Action.PONG:
                 choosed_player = i
                 choosed_action = MJConstants.Action.PONG    
                 break
-            elif result_map[i] == MJConstants.Action.CHOW:
+            elif result_map[i][0] == MJConstants.Action.CHOW and result_map[i][1] >= 0 and table.is_chow_pos(player_pos, i):
                 choosed_player = i
                 choosed_action = MJConstants.Action.CHOW
+                choosed_tile = result_map[i][1]
                 break
         if choosed_action == MJConstants.Action.TAKE:
             print("all player pass, the next player{} take tile".format(choosed_player))
-        return choosed_player ,choosed_action
+        return choosed_player, choosed_action, choosed_tile
 
 
     def __register_algorithm_to_message_handler(self, uuid, algorithm):
@@ -270,7 +272,7 @@ class GameManager:
     def __draw_tiles(self):
         for player in self.table.seats.players:
             tiles = self.table.wall.draw_tiles(14)
-            print("draw tiles: {}".format([tid.to_id() for tid in tiles] ))
+            print("draw tiles: {}".format(tiles))
             player.add_hand_tiles_136(tiles)
 
     # return 0,1,2,3 as index position

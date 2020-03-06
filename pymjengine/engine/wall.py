@@ -15,10 +15,12 @@ class Wall:
 
     
     def draw_tile(self):
-        return self.wall.pop()
+        tile = self.wall.pop()
+        return tile.to_id()
 
     def draw_tiles(self, num):
-        return reduce(lambda acc, _: acc + [self.draw_tile()], range(num), [])
+        tiles = reduce(lambda acc, _: acc + [self.draw_tile()], range(num), [])
+        return tiles
 
     def size(self):
         return len(self.wall)

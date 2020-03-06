@@ -36,7 +36,8 @@ class Table:
     def next_ask_act_player_pos(self, start_pos):
         return self.__find_entitled_player_pos(start_pos, lambda player: player.get_ask_act() > 0)
 
-    def get_next_player(self, pos):
+    @classmethod
+    def get_next_player(cls, pos):
         nextpos = pos + 1
         if nextpos > 3:
             return 0
@@ -46,6 +47,10 @@ class Table:
     def get_player_act(self, pos):
         print("*****func* table.get_player_act: pos:{}".format(pos))
         return self.seats.players[pos].get_ask_act()
+
+    @classmethod
+    def is_chow_pos(cls, cur_pos, chow_pos):
+        return cls.get_next_player(cur_pos) == chow_pos
 
     def serialize(self):
         river_tiles = [tile for tile in self.river_tiles]

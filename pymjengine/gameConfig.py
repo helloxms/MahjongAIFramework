@@ -34,7 +34,6 @@ class Config(object):
         if not isinstance(algorithm, BaseMJPlayer):
             base_msg = 'Mahjong player must be child class of "BaseMJPlayer". But its parent was "%s"'
             raise TypeError(base_msg % algorithm.__class__.__bases__)
-
         info = { "name" : name, "algorithm" : algorithm }
         self.players_info.append(info)
 

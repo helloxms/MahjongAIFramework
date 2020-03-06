@@ -1,20 +1,20 @@
-
-
 from pymjengine.simpleMJPlayer import SimpleMJPlayer
 from pymjengine.gameConfig import setup_config, start_mahjong
+
 
 # if debug_info_level > 0 will open the print log
 
 
 def main():
-	debug_level = 0
-	config = setup_config(max_round=30)
-	config.register_player(name="p0", algorithm=SimpleMJPlayer(name='p0', debug_info_level=0))
-	config.register_player(name="p1", algorithm=SimpleMJPlayer(name='p1', debug_info_level=0))
-	config.register_player(name="p2", algorithm=SimpleMJPlayer(name='p2', debug_info_level=0))
-	config.register_player(name="p3", algorithm=SimpleMJPlayer(name='p3', debug_info_level=0))
-	game_result = start_mahjong(config, debug_info_level=0)
-	print(game_result)
+    debug_level = 0
+    config = setup_config(max_round=30)
+    config.register_player(name="p0", algorithm=SimpleMJPlayer(name='p0', pos=0, debug_info_level=0))
+    config.register_player(name="p1", algorithm=SimpleMJPlayer(name='p1', pos=1, debug_info_level=0))
+    config.register_player(name="p2", algorithm=SimpleMJPlayer(name='p2', pos=2, debug_info_level=0))
+    config.register_player(name="p3", algorithm=SimpleMJPlayer(name='p3', pos=3, debug_info_level=0))
+    game_result = start_mahjong(config, debug_info_level=0)
+    print(game_result)
+
 
 if __name__ == "__main__":
-	main()
+    main()

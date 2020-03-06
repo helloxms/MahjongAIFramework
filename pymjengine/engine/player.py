@@ -46,11 +46,12 @@ class Player:
                 break
         return tile_136
 
-    def add_hand_tile_136(self, tile):
-        self.hand_tiles += [tile]
+    def add_hand_tile_136(self, tile_136):
+        self.hand_tiles.append(Tile(tile_136))
 
     def add_hand_tiles_136(self, tiles):
-        self.hand_tiles += tiles
+        for i in range(0, len(tiles)):
+            self.hand_tiles.append( Tile.from_136_id(tiles[i]) )
 
     def clear_hand_tiles(self):
         self.hand_tiles = []
@@ -102,10 +103,10 @@ class Player:
 
     @classmethod
     def deserialize(self, serial):
-        tile_ids = [Tile.from_id(tid) for tid in serial[3]]
+        tiles = [tid for tid in serial[3]]
         player = self(serial[1], serial[0])
-        if len(tile_ids) != 0:
-            player.add_hand_tiles_136(tile_ids)
+        if len(tiles) != 0:
+            player.add_hand_tiles_136(tiles)
         player.action_histories = serial[4]
         player.active_info = serial[5]
         return player

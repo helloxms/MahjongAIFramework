@@ -73,17 +73,18 @@ class DataEncoder:
 
     @classmethod
     def encode_action_histories(self, table):
-        return { "action_histories": 0 }
+        return {"action_histories": 0 }
 
     @classmethod
     def encode_winners(self, winners):
-        return { "winners": self.__encode_players(winners) }
+        return {"winners": self.__encode_players(winners) }
 
     @classmethod
     def encode_round_state(self, state):
         hsh = {
             "next_player": state["next_player"],
-            "round_count": state["round_count"]
+            "round_count": state["round_count"],
+            "cur_player": state["cur_player"]
         }
         hsh.update(self.encode_seats(state["table"].seats))
         hsh.update(self.encode_action_histories(state["table"]))
