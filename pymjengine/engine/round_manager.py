@@ -94,7 +94,7 @@ class RoundManager:
         player = state["table"].seats.players[player_pos]
         table = state["table"]
         if action == MJConstants.Action.TAKE:
-            print("do action take here")
+            print("server: do action take")
             tile_136 = table.wall.draw_tile()
             player.add_hand_tile_136(tile_136)
             player.add_action_history(action)
@@ -108,13 +108,13 @@ class RoundManager:
             player.drop_hand_tile_136(drop_tile_136)
             table.add_river_tiles(drop_tile_136)
             state["table"].river_tiles = table.river_tiles
-            print("do action play end ,river is:{}".format(table.river_tiles))
+            print("server: do action play end ,river is:{}".format(table.river_tiles))
             state["last_drop_tile_136"] = player.last_drop_tile_136
             if state["cur_winner"] >= 0:
                 print("cur winner is {}".format(player_pos))
                 state["cur_act"] = MJConstants.Action.HU
         elif action == MJConstants.Action.CHOW:
-            print("do action chow here")
+            print("server: do action chow")
             player.drop_hand_tile_136(tile)
             player.add_hand_tile_136(state["last_drop_tile_136"])
             player.add_action_history(action)
@@ -123,13 +123,17 @@ class RoundManager:
             state["last_drop_tile_136"] = tile
 
         elif action == MJConstants.Action.PONG:
-            print("do action pong here")
+            print("server: do action pong")
+            player.add_hand_tile_136(state["last_drop_tile_136"])
+            player.add_action_history(action)
         elif action == MJConstants.Action.KONG:
-            print("do action kong here")
+            print("server: do action kong")
+            player.add_hand_tile_136(state["last_drop_tile_136"])
+            player.add_action_history(action)
         elif action == MJConstants.Action.TIN:
-            print("do action tin here")
+            print("server: do action tin")
         elif action == MJConstants.Action.HU:
-            print("do action hu here")
+            print("server: do action hu")
 
         return state
 
