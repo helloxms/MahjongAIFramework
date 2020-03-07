@@ -55,10 +55,12 @@ class MessageBuilder:
         return cls.__build_notification_message(message)
 
     @classmethod
-    def build_game_result_message(cls, config, seats):
+    def build_game_result_message(cls, config, seats, game_count, winner):
         message = {
             "message_type": cls.GAME_RESULT_MESSAGE,
-            "game_information": DataEncoder.encode_game_information(config, seats)
+            "game_information": DataEncoder.encode_game_information(config, seats),
+            "game_round": game_count,
+            "winner": winner
         }
         return cls.__build_notification_message(message)
 

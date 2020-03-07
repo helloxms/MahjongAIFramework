@@ -29,6 +29,19 @@ class SimpleMJPlayer(BaseMJPlayer):
         self.meld_tiles_tmp = []
         self.action_tmp = -1
 
+    def reset():
+        self.name = name
+        self.pos = pos
+        self.hand_tiles = []
+        self.kong_tiles = []
+        self.pong_tiles = []
+        self.chow_tiles = []
+        self.meld_tiles = []
+        self.cur_player = -1
+        self.cur_action = -1
+        self.meld_tiles_tmp = []
+        self.action_tmp = -1        
+
 
     def is_chow_able(self, cur_pos, pos):
         if cur_pos == 3 and pos == 0:
@@ -383,19 +396,25 @@ class SimpleMJPlayer(BaseMJPlayer):
     def receive_game_update_message(self, action_info, round_state):
         self.cur_player = round_state["cur_player"]
         self.cur_action = action_info["action"]
-        # print("receive_game_update_message cur_player:{} cur_action:{}".format(self.cur_player, self.cur_action))
-        # print("receive_game_update_message self pos:{} self action tmp:{} meld_tiles_tmp size:{}".format(self.pos, self.action_tmp, len(self.meld_tiles_tmp)))
-        if self.pos == self.cur_player and self.action_tmp >0 and len(self.meld_tiles_tmp) > 0:
-            print("player:{} update my action state".format(self.name))
-            for i in range(0, len(self.meld_tiles_tmp)):
-                self.meld_tiles.append( self.meld_tiles_tmp[i])
-                self.meld_tiles = list(set(self.meld_tiles))
-            self.cur_action = -1
-            self.meld_tiles_tmp.clear()
+        if self.cur_action == 3 or self.cur_action == 4 or self.cur_action == 5:
+            #print("receive_game_update_message cur_player:{} cur_action:{}".format(self.cur_player, self.cur_action))
+            #print("receive_game_update_message self pos:{} self action tmp:{} meld_tiles_tmp size:{}".format(self.pos, self.action_tmp, len(self.meld_tiles_tmp)))
+            if self.pos == self.cur_player and self.action_tmp == self.cur_action and len(self.meld_tiles_tmp) > 0:
+                print("player:{} update my action state".format(self.name))
+                for i in range(0, len(self.meld_tiles_tmp)):
+                    self.meld_tiles.append( self.meld_tiles_tmp[i])
+                    self.meld_tiles = list(set(self.meld_tiles))
+                self.action_tmp = -1
+                self.meld_tiles_tmp.clear()
+            else:
+                self.action_tmp = -1
+                self.meld_tiles_tmp.clear()
+
+
 
         if self.debug_info_level > 1:
             print("==========> player:{}   (BaseMJPlayer)AI receive_game_update_message".format(self.name))
-        print("receive_game_update_message action_info:{}, \nround_state:{}".format(action_info, round_state))
+        #print("receive_game_update_message action_info:{}, \nround_state:{}".format(action_info, round_state))
         return
 
     def receive_round_result_message(self, winners, action_info, round_state):

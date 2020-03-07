@@ -69,15 +69,20 @@ class GameManager:
         self.__notify_game_start(max_round)
         # step3. start a round
         print("******func* step3. start a round")
+        iRoundCount = 0
+        iWinerPlayer = 0
         for round_count in range(1, max_round + 1):
             print("*************************************************************************************************")
             print("***********************************   a new round   *********************************************")
             print("round count:{}".format(round_count))
+            iRoundCount = round_count
             if self.__is_game_finished(table):
                 print("game finished")
                 break
-            table = self.play_round(round_count)
-        return self.__generate_game_result(max_round, table.seats)
+            state = self.play_round(round_count)
+            iWinerPlayer = state["cur_winner"]
+
+        return self.__generate_game_result(max_round, table.seats, iRoundCount, iWinerPlayer)
 
     def play_round(self, round_count):
         state, msgs = RoundManager.start_new_round(round_count, self.table)
@@ -135,15 +140,19 @@ class GameManager:
                         print("__get_choosed_player: checked cur_player:{} action:{} ".format(state["cur_player"],
                                                                                               choosed_action))
                         if choosed_action == MJConstants.Action.KONG:
+                            print("server: apply kong action")
                             state, msgs = RoundManager.apply_action_no_askmsg(state, choosed_player, choosed_action)
+                            self.__publish_and_no_return(msgs)
                             state["cur_player"] = state["next_player"]
                             state["next_player"] = state["table"].get_next_player(state["cur_player"])
                             choosed_player = state["cur_player"]
                             choosed_action = MJConstants.Action.TAKE
                             state["cur_act"] = MJConstants.Action.TAKE
                         else:
+                            print("server: apply chow or pong")
                             state, msgs = RoundManager.apply_action_with_askmsg(state, choosed_player, choosed_action,
                                                                                 choosed_tile)
+                            check_action_result = self.__publish_and_callbak_msg(msgs)
 
                 print("round count:{} cur_player:{} cur_act:{} banker:{}".format(round_count, state['cur_player'],
                                                                                  state['cur_act'], self.table.banker))
@@ -156,12 +165,14 @@ class GameManager:
                 if state["cur_winner"] >= 0:
                     state["table"].seats.players[state["cur_winner"]].set_hu(True)
                     state["round_act_state"] = MJConstants.round_act_state.FINISHED
+                if self.table.wall.size() <= 6:
+                    state["round_act_state"] = MJConstants.round_act_state.FINISHED
                 self.table = state["table"]
             else:
                 print("\n\n******func* GameManager.play_round finish a round\n\n")
                 break
 
-        return state["table"]
+        return state
 
     # 2020-03-02
     # need add more game rule logic here
@@ -234,6 +245,8 @@ class GameManager:
             print("check game end: {}".format(player.is_hu))
             if player.is_hu:
                 bFinish = True
+        if self.table.wall.size() <= 6:
+            bFinish = True
         return bFinish
 
     def __message_check(self, msgs):
@@ -263,10 +276,10 @@ class GameManager:
     def __callback_msg(self, address, msg):
         return self.message_handler.process_message(address, msg)
 
-    def __generate_game_result(self, max_round, seats):
+    def __generate_game_result(self, max_round, seats, game_count, winner):
         print("\n******func* GameManager.__generate_game_result")
         config = self.__gen_config(max_round, self.table.banker)
-        result_message = MessageBuilder.build_game_result_message(config, seats)
+        result_message = MessageBuilder.build_game_result_message(config, seats, game_count, winner )
         self.message_summarizer.summarize(result_message)
         return result_message
 
