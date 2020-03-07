@@ -9,7 +9,7 @@ def main():
     debug_level = 0
     game_round_statistic = []
     game_winner_statistic = []
-    for i in range(0,100):
+    for i in range(0,1):
         config = setup_config(max_round=30)
         config.register_player(name="p0", algorithm=SimpleMJPlayer(name='p0', pos=0, debug_info_level=0))
         config.register_player(name="p1", algorithm=SimpleMJPlayer(name='p1', pos=1, debug_info_level=0))
@@ -19,10 +19,13 @@ def main():
         game_round_statistic.append(game_result["game_round"])
         game_winner_statistic.append(game_result["winner"])
         print(game_result)
+        print("game round statistic:")
         print(game_round_statistic)
+        print("winner statistic:")
         print(game_winner_statistic)
 
     iCount = 0
+
     for i in range(0, len(game_winner_statistic)):
         if game_winner_statistic[i] > 0:
             iCount += 1

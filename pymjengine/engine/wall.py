@@ -51,6 +51,11 @@ class Wall:
         tiles = [Tile.from_136_id(tid) for tid in range(0,136)]
         random.shuffle(tiles)
         return tiles
+        #tiles1 = [Tile.from_136_id(tid) for tid in range(0,40)]
+        #tiles2 = [Tile.from_136_id(tid) for tid in range(40,136)]
+        #random.shuffle(tiles2)
+
+        return tiles1+tiles2
 
     def __setup_cheat_wall(self):
         tiles = [Tile.from_id(tid) for tid in self.cheat_tile_ids]
